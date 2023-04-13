@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
@@ -63,7 +64,7 @@ namespace Server
 
             bool clientIsConnected = true;
             NetworkDataHelper networkdatahelper = new NetworkDataHelper(socketClient);
-            const int largoDataLength = 4;  // Defino la constante del largo ******* HAY QUE DEFINIRLO MAS PROLLIJO EN OTRO LADO
+            //const int largoDataLength = 4;  // Defino la constante del largo ******* HAY QUE DEFINIRLO MAS PROLLIJO EN OTRO LADO
                                             // ******************************************************************************
 
             while (clientIsConnected) 
@@ -71,8 +72,8 @@ namespace Server
                 
                 try
                 {
-
-                    byte[] dataLength = networkdatahelper.Receive(largoDataLength);
+                    byte[] dataLength = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                    //byte[] dataLength = networkdatahelper.Receive(largoDataLength);
                     byte[] data = networkdatahelper.Receive(BitConverter.ToInt32(dataLength));
                      string message = Encoding.UTF8.GetString(data);
                         Console.WriteLine("Mensaje Recibido: {0}", message);
