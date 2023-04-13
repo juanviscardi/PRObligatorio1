@@ -6,11 +6,16 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    public class ProtocolSpecification
+    public static class ProtocolSpecification
     {
-        //cons
-        //separadores
-        //valore
-        //largo
+        //Protocolo para comandos
+        public const int fixedHeaderSize = 3;
+        public const int fixedCmdSize = 4;
+        public const int fixedLength = 4;
+
+        //separador para usurio/password o para repuestos o algo mas
+        public const char fieldsSeparator = ';';
+        public const char valuesSeparator = ':';
+
     }
 }

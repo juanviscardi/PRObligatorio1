@@ -12,17 +12,20 @@ namespace Server
 {
     public class Program
     {
+        static readonly SettingsManager settingsMng = new SettingsManager();
+
         public static void Main(string[] args)
         {
-            
-            int serverPort = int.Parse(Properties.Resources.ServerPort);
-            string serverAddress = Properties.Resources.ServerIp;
-
             Console.WriteLine("Starting Server Application.....!!!");
             var socketServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverPort);
-            IPEndPoint localEndPoint = new(IPAddress.Parse(serverAddress), serverPort);
-            
+
+            //Sustituimos ip y port por los valores del archivo
+            string serverIp = settingsMng.ReadSettings(ServerConfig.serverIPConfigKey);
+            int serverPort = int.Parse(settingsMng.ReadSettings(ServerConfig.serverPortconfigKey));
+            var localEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
+
+            Console.WriteLine("Server initialized with IP {0} and Port {1}", serverIp, serverPort);
 
             // Asociamos el socket con el endpoint
             socketServer.Bind(localEndPoint);

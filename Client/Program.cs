@@ -9,32 +9,41 @@ using Common;
 using System.Text.RegularExpressions;
 using System.Runtime.ConstrainedExecution;
 
+
 namespace Client
 {
     public class Program
     {
-        
+        static readonly SettingsManager settingsMng = new SettingsManager();
         public static void Main(string[] args)
-        {   
+        {
             // Levanto IP y puertos de archivo
-            int serverPort = int.Parse(Properties.Resources.ServerPort);
-            int clientPort = int.Parse(Properties.Resources.ClientPort);
-            string clientAddress = Properties.Resources.ClientIp;
-            string serverAddress = Properties.Resources.ServerIp;
-            //Termino de traer info de archivos
+            /* int serverPort = int.Parse(Properties.Resources.ServerPort);
+             int clientPort = int.Parse(Properties.Resources.ClientPort);
+             string clientAddress = Properties.Resources.ClientIp;
+             string serverAddress = Properties.Resources.ServerIp;*/
+
+            //Sustituimos ip y port por los valores del archivo
+            string serverIp = settingsMng.ReadSettings(ClientConfig.serverIPConfigKey);
+            string clientIp = settingsMng.ReadSettings(ClientConfig.ClientIPConfigKey);
+            int serverPort = int.Parse(settingsMng.ReadSettings(ClientConfig.serverPortconfigKey));
+            int clientPort = int.Parse(settingsMng.ReadSettings(ClientConfig.ClientPortconfigKey));
+
+            //var localEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
+
+            // Aca le defino el endpoint del servidor
+            //var remoteEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 20000);
+            var remoteEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
+            //********** serverAddress hace pum
 
             Console.WriteLine("Starting Client Application...!");
             var socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // Poner el puerto en 0 le indico que utilice el primero disponible
             //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0);
-            var localEndPoint = new IPEndPoint(IPAddress.Parse(clientAddress), clientPort);
-            
+            //var localEndPoint = new IPEndPoint(IPAddress.Parse(clientAddress), clientPort);
+            var localEndPoint = new IPEndPoint(IPAddress.Parse(clientIp), clientPort);
 
-            // Aca le defino el endpoint del servidor
-            //var remoteEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 20000);
-            var remoteEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverPort);
-            //********** serverAddress hace pum
 
             socketClient.Bind(localEndPoint);
             Console.WriteLine("Starting Client");
