@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using Common;
-
+using System.ComponentModel.Design;
 
 namespace ClientApp
 {
@@ -16,32 +16,29 @@ namespace ClientApp
         {
             // Levanto IP y puertos de archivo
 
-            //Sustituimos ip y port por los valores del archivo
+            //Sustituyo ip y port por los valores del archivo
             string serverIp = settingsMng.ReadSettings(ClientConfig.serverIPConfigKey);
             string clientIp = settingsMng.ReadSettings(ClientConfig.ClientIPConfigKey);
             int serverPort = int.Parse(settingsMng.ReadSettings(ClientConfig.serverPortconfigKey));
             int clientPort = int.Parse(settingsMng.ReadSettings(ClientConfig.ClientPortconfigKey));
 
-            
+            //endPoint hacia server
             var remoteEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
-
+            
+            //socket y EndPint Ciente
             Console.WriteLine("Starting Client Application...!");
             var socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            // Poner el puerto en 0 le indico que utilice el primero disponible
-            //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0);
             var localEndPoint = new IPEndPoint(IPAddress.Parse(clientIp), clientPort);
-
 
             socketClient.Bind(localEndPoint);
             Console.WriteLine("Starting Client");
             Console.WriteLine("Connecting.......");
+            
             socketClient.Connect(remoteEndPoint); // Me conecto al servidor
-
             Console.WriteLine("Connected to Server!!!!");
 
             /******* DE ACA PARA ABAJO ES LO QUE HAY QUE ENAPSULAR   **************************************/
-            Console.WriteLine("Type a message a press enter to send it");
+           
             bool salir = false;
             
             var cmd = "";
@@ -113,8 +110,35 @@ namespace ClientApp
                 case "8":   //CRF8 Enviar y recibir mensajes.
                             //El sistema debe permitir que un mecánico envíe mensajes a otro,
                             //y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
+                    
+                    Console.WriteLine("Type a message a press enter to send it");
+                    NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
+                    while (!salir)
                     {
-                        Console.WriteLine("TODO");
+                        var message = Console.ReadLine();
+                        if (string.IsNullOrEmpty(message) || message.Equals("exit", StringComparison.Ordinal))
+                        {
+                            salir = true;
+                        }
+                        else
+                        {
+                            byte[] data = Encoding.UTF8.GetBytes(message);  // Convierto de string a un array de bytes
+                            int datalength = data.Length;
+                            byte[] dataLength = BitConverter.GetBytes(datalength);
+                            try
+                            {
+                                networkdatahelper.Send(dataLength);
+                                networkdatahelper.Send(data);
+                            }
+                            catch (SocketException)
+                            {
+                                Console.WriteLine("Perdi la conexion con el server");
+                                salir = true;
+
+                            }
+
+                        }
+                        cmd = "";
                     }
                     break;
                 case "9":   //CRF9  Configuración.
@@ -134,34 +158,7 @@ namespace ClientApp
             }
 
 
-            NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
-            while (!salir) 
-            {
-                
-                var message = Console.ReadLine();
-                if (string.IsNullOrEmpty(message) || message.Equals("exit", StringComparison.Ordinal))
-                {
-                    salir = true;
-                }
-                else
-                {
-                    byte[] data = Encoding.UTF8.GetBytes(message);  // Convierto de string a un array de bytes
-                    int datalength = data.Length;
-                    byte[] dataLength = BitConverter.GetBytes(datalength);
-                    try
-                    {
-                        networkdatahelper.Send(dataLength);
-                        networkdatahelper.Send(data);
-                    }
-                    catch (SocketException) 
-                    {
-                        Console.WriteLine("Perdi la conexion con el server");
-                        salir = true;
-
-                    }
-
-                }
-            }
+            
 
            
             Console.WriteLine("Will close Connection....");
