@@ -1,5 +1,7 @@
 ﻿using Common;
+using System.Configuration;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 
@@ -51,10 +53,14 @@ namespace Server
                 Console.WriteLine("Acepte un nuevo pedido de conexion");
 
                 //Feo pero funciona - Algo para saber quien soy
-                Console.WriteLine(socketClient.RemoteEndPoint);
+                string algo = socketClient.RemoteEndPoint.ToString()
+                                 ?? string.Empty;
 
-                    // ******* PONER UN MENSAJE ACORDE
-                    // Usando el nombre/valor del puerto usado tal vez
+                string[] datos = algo.Split(":");
+                Console.WriteLine("Se conecto {0} en el puerto {1}", datos[0], datos[1]);
+
+                // ******* PONER UN MENSAJE ACORDE
+                // Usando el nombre/valor del puerto usado tal vez
 
                 new Thread(() => HandleClient(socketClient)).Start(); 
                     // Lanzamos un nuevo hilo para manejar al nuevo cliente
@@ -86,7 +92,13 @@ namespace Server
                         Console.WriteLine("Mensaje Recibido: {0}", message);
                     
                     // Feo pero funciona - Algo para saber quien soy
-                    Console.WriteLine(socketClient.RemoteEndPoint);
+                    string algo = socketClient.RemoteEndPoint.ToString()
+                                  ?? string.Empty;
+                   
+                    string[] datos = algo.Split(":");
+                    Console.WriteLine("Mando mensaje {0} en el puerto {1} \n", datos[0], datos[1]);
+                    
+
 
                 }
                 catch (SocketException ex) 
@@ -95,7 +107,7 @@ namespace Server
                     // ******* PONER UN MENSAJE ACORDE
                     // Usando el valor de ex tal vez
                     
-                    Console.WriteLine("ERROR: {0}", ex.ToString() + "\n" + socketClient.RemoteEndPoint + "\n");
+                    Console.WriteLine("ERROR:" + "Client disconnected a lo bruto \n" + socketClient.RemoteEndPoint + "\n");
 
                     // ESTE ERROR ME LO COMO (NO LO MUESTRO)
                     // O LO TIRO A UNA BASE DE EVENTOS/ERRORES
