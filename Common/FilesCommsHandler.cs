@@ -50,19 +50,19 @@ namespace Common
         {
             // ---> Recibir el largo del nombre del archivo
             int fileNameSize = _conversionHandler.ConvertBytesToInt(
-                _socketHelper.Receive(Protocol.FixedDataSize));
+                _socketHelper.Receive(ProtocolSpecification.FixedDataSize));
             // ---> Recibir el nombre del archivo
             string fileName = _conversionHandler.ConvertBytesToString(_socketHelper.Receive(fileNameSize));
             // ---> Recibir el largo del archivo
             long fileSize = _conversionHandler.ConvertBytesToLong(
-                _socketHelper.Receive(Protocol.FixedFileSize));
+                _socketHelper.Receive(ProtocolSpecification.FixedFileSize));
             // ---> Recibir el archivo
             ReceiveFileWithStreams(fileSize, fileName);
         }
 
         private void SendFileWithStream(long fileSize, string path)
         {
-            long fileParts = Protocol.CalculateFileParts(fileSize);
+            long fileParts = ProtocolSpecification.CalculateFileParts(fileSize);
             long offset = 0;
             long currentPart = 1;
 
@@ -83,8 +83,8 @@ namespace Common
                 {
                     //1- Leo de disco el segmento
                     //2- Guardo ese segmento en un buffer
-                    data = _fileStreamHandler.Read(path, offset, Protocol.MaxPacketSize);
-                    offset += Protocol.MaxPacketSize;
+                    data = _fileStreamHandler.Read(path, offset, ProtocolSpecification.MaxPacketSize);
+                    offset += ProtocolSpecification.MaxPacketSize;
                 }
 
                 _socketHelper.Send(data); //3- Envío ese segmento a travez de la red
@@ -94,7 +94,7 @@ namespace Common
 
         private void ReceiveFileWithStreams(long fileSize, string fileName)
         {
-            long fileParts = Protocol.CalculateFileParts(fileSize);
+            long fileParts = ProtocolSpecification.CalculateFileParts(fileSize);
             long offset = 0;
             long currentPart = 1;
 
@@ -113,8 +113,8 @@ namespace Common
                 else
                 {
                     //2.2- Si no, recibo una parte cualquiera
-                    data = _socketHelper.Receive(Protocol.MaxPacketSize);
-                    offset += Protocol.MaxPacketSize;
+                    data = _socketHelper.Receive(ProtocolSpecification.MaxPacketSize);
+                    offset += ProtocolSpecification.MaxPacketSize;
                 }
                 //3- Escribo esa parte del archivo a disco
                 _fileStreamHandler.Write(fileName, data);

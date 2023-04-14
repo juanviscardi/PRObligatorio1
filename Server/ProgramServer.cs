@@ -1,29 +1,28 @@
 ﻿using Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Security;
 using System.Net.Sockets;
-using System.Net.WebSockets;
 using System.Text;
-
 
 namespace Server
 {
-    public class Program
+    public class ProgramServer
     {
         static readonly SettingsManager settingsMng = new SettingsManager();
 
         public static void Main(string[] args)
         {
             Console.WriteLine("Starting Server Application.....!!!");
-            var socketServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverPort);
+
+            var socketServer = new Socket(
+                AddressFamily.InterNetwork, 
+                SocketType.Stream, 
+                ProtocolType.Tcp);
 
             //Sustituimos ip y port por los valores del archivo
             string serverIp = settingsMng.ReadSettings(ServerConfig.serverIPConfigKey);
             int serverPort = int.Parse(settingsMng.ReadSettings(ServerConfig.serverPortconfigKey));
+
+            //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverPort);
             var localEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
 
             Console.WriteLine("Server initialized with IP {0} and Port {1}", serverIp, serverPort);
@@ -35,16 +34,20 @@ namespace Server
                                       // el 100 me dice que puedo manejar la espera de varios a la vez, es el backlog,
                                       // la cola de conexiones que aceptara
 
+            int clientes = 0;
+            bool salir = false;
+
             Console.WriteLine("Waiting for Clients.....");
 
-            while (true)  // OJO CON ESTE WHILE TRUE, MEJOR PONER UN LIMITE X Y DJAR EN ENTRAR AL RESTO
-                          //********************************
-                          //*******************************
+            while (!salir)
             {
                 Socket socketClient = socketServer.Accept();
                     // El Accept es bloqueante
                     // Espera a que llegue una nueva conexion,
                     // por eso fue el 100 en el listen sino bloquea y no podra hacer nada mas.
+                clientes++;
+                int nro = clientes;
+
                 Console.WriteLine("Acepte un nuevo pedido de conexion");
 
                 //Feo pero funciona - Algo para saber quien soy
@@ -56,8 +59,12 @@ namespace Server
                 new Thread(() => HandleClient(socketClient)).Start(); 
                     // Lanzamos un nuevo hilo para manejar al nuevo cliente
 
-            } 
-         }
+            }
+            // Cierro el socket
+            socketServer.Shutdown(SocketShutdown.Both);
+            socketServer.Close();
+            socketServer.Dispose();
+        }
 
         static void HandleClient(Socket socketClient) 
         {

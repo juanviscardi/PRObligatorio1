@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Common
 {
@@ -12,6 +8,11 @@ namespace Common
         public const int fixedHeaderSize = 3;
         public const int fixedCmdSize = 4;
         public const int fixedLength = 4;
+        public const int fixedSize = 8;
+
+        //Para archivos/foto
+        public const int FixedFileSize = 8;
+        public const int FixedDataSize = 4;
         public const int MaxPacketSize = 32768; //32KB
 
         //separador para usurio/password o para repuestos o algo mas

@@ -4,24 +4,17 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
-using System.Reflection;
 using Common;
-using System.Text.RegularExpressions;
-using System.Runtime.ConstrainedExecution;
 
 
-namespace Client
+namespace ClientApp
 {
-    public class Program
+    public class ProgramClient
     {
         static readonly SettingsManager settingsMng = new SettingsManager();
         public static void Main(string[] args)
         {
             // Levanto IP y puertos de archivo
-            /* int serverPort = int.Parse(Properties.Resources.ServerPort);
-             int clientPort = int.Parse(Properties.Resources.ClientPort);
-             string clientAddress = Properties.Resources.ClientIp;
-             string serverAddress = Properties.Resources.ServerIp;*/
 
             //Sustituimos ip y port por los valores del archivo
             string serverIp = settingsMng.ReadSettings(ClientConfig.serverIPConfigKey);
@@ -29,19 +22,14 @@ namespace Client
             int serverPort = int.Parse(settingsMng.ReadSettings(ClientConfig.serverPortconfigKey));
             int clientPort = int.Parse(settingsMng.ReadSettings(ClientConfig.ClientPortconfigKey));
 
-            //var localEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
-
-            // Aca le defino el endpoint del servidor
-            //var remoteEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 20000);
+            
             var remoteEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
-            //********** serverAddress hace pum
 
             Console.WriteLine("Starting Client Application...!");
             var socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // Poner el puerto en 0 le indico que utilice el primero disponible
             //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0);
-            //var localEndPoint = new IPEndPoint(IPAddress.Parse(clientAddress), clientPort);
             var localEndPoint = new IPEndPoint(IPAddress.Parse(clientIp), clientPort);
 
 
@@ -56,7 +44,7 @@ namespace Client
             Console.WriteLine("Type a message a press enter to send it");
             bool salir = false;
             
-            string cmd = "";
+            var cmd = "";
             cmd = Console.ReadLine();
             switch (cmd)
             {
@@ -180,6 +168,7 @@ namespace Client
 
             socketClient.Shutdown(SocketShutdown.Both); // Desconecto ambos sentidos de la connecion
             socketClient.Close();
+            socketClient.Dispose();
         }
     }
 }
