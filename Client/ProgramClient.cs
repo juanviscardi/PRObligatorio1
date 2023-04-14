@@ -70,34 +70,54 @@ namespace ClientApp
                 case "2":   //CRF2 Alta de repuesto.
                             //Se debe poder dar de alta a un repuesto en el sistema, incluyendo
                             //id, nombre, proveedor y marca.
-
-
                     {
+                        Console.WriteLine("CRF2 Alta de repuesto.");
+                        Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
+                        Console.WriteLine("id, nombre, proveedor y marca .");
+
+                        Console.WriteLine("Please enter nombre repueasto");
+                        string nombreRepuesto = Console.ReadLine();
+                        Console.WriteLine("Please enter proedor repueasto");
+                        string proveedorRepuesto = Console.ReadLine();
+                        Console.WriteLine("Please enter marca repueasto");
+                        string marcaRepuesto = Console.ReadLine();
+
+                        string data =  
+                            nombreRepuesto + ProtocolSpecification.fieldsSeparator + 
+                            proveedorRepuesto + ProtocolSpecification.fieldsSeparator +
+                            marcaRepuesto;
+                        Console.WriteLine(data);
                         Console.WriteLine("TODO");
+                        Console.WriteLine("TODO");
+                        Console.ReadLine();
                     }
                     break;
                 case "3":   //CRF3 Alta de Categoría de repuesto.
                             //El sistema debe permitir crear una Categoría para los repuestos.
                     {
                         Console.WriteLine("TODO");
+                        Console.ReadLine();
                     }
                     break;
                 case "4":   //CRF4 Asociar Categorías a los repuestos.
                             //El sistema debe permitir asociar categorías a los repuestos.
                     {
                         Console.WriteLine("TODO");
+                        Console.ReadLine();
                     }
                     break;
                 case "5":   //CRF5 Asociar foto a repuesto.
                             //El sistema debe permitir subir una foto y asociarla a un repuesto específico.
                     {
                         Console.WriteLine("TODO");
+                        Console.ReadLine();
                     }
                     break;
                 case "6":   //CRF6 Consultar repuestos existentes.
                             //El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
                     {
                         Console.WriteLine("TODO");
+                        Console.ReadLine();
                     }
                     break;
                 case "7":   //CRF7 Consultar un repuesto específico.
@@ -105,6 +125,7 @@ namespace ClientApp
                             //También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
                     {
                         Console.WriteLine("TODO");
+                        Console.ReadLine();
                     }
                     break;
                 case "8":   //CRF8 Enviar y recibir mensajes.
@@ -113,12 +134,13 @@ namespace ClientApp
                     
                     Console.WriteLine("Type a message a press enter to send it");
                     NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
-                    while (!salir)
+                    bool salirCRF8 = false;
+                    while (!salirCRF8 || !salir )
                     {
                         var message = Console.ReadLine();
                         if (string.IsNullOrEmpty(message) || message.Equals("exit", StringComparison.Ordinal))
                         {
-                            salir = true;
+                            salirCRF8 = true;
                         }
                         else
                         {
@@ -138,14 +160,20 @@ namespace ClientApp
                             }
 
                         }
-                        cmd = "";
+                        
+                        Console.ReadLine();
+                        Console.WriteLine("TODO");
+                        salirCRF8 = true;
                     }
+
+
                     break;
                 case "9":   //CRF9  Configuración.
                             //Se deberá ser capaz de modificar los puertos e ip utilizados por el cliente y la clave del usuario admin sin necesidad de recompilar el proyecto.
                             //Dichos valores no deben estar “hardcodeados” en el código.
                     {
                         Console.WriteLine("TODO");
+                        Console.ReadLine();
                     }
                     break;
 

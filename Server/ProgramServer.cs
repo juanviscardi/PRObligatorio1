@@ -39,7 +39,7 @@ namespace Server
             int clientes = 0;
             bool salir = false;
 
-            Console.WriteLine("Waiting for Clients.....");
+            Console.WriteLine("Waiting for Clients.....\n");
 
             while (!salir)
             {
@@ -57,7 +57,7 @@ namespace Server
                                  ?? string.Empty;
 
                 string[] datos = algo.Split(":");
-                Console.WriteLine("Se conecto {0} en el puerto {1}", datos[0], datos[1]);
+                Console.WriteLine("Se conecto {0} en el puerto {1} \n", datos[0], datos[1]);
 
                 // ******* PONER UN MENSAJE ACORDE
                 // Usando el nombre/valor del puerto usado tal vez
@@ -89,14 +89,14 @@ namespace Server
                     //byte[] dataLength = networkdatahelper.Receive(largoDataLength);
                     byte[] data = networkdatahelper.Receive(BitConverter.ToInt32(dataLength));
                      string message = Encoding.UTF8.GetString(data);
-                        Console.WriteLine("Mensaje Recibido: {0}", message);
+                        //Console.WriteLine("Mensaje Recibido: {0}", message);
                     
                     // Feo pero funciona - Algo para saber quien soy
                     string algo = socketClient.RemoteEndPoint.ToString()
                                   ?? string.Empty;
                    
                     string[] datos = algo.Split(":");
-                    Console.WriteLine("Mando mensaje {0} en el puerto {1} \n", datos[0], datos[1]);
+                    Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message, datos[0], datos[1]);
                     
 
 
