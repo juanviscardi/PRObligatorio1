@@ -89,15 +89,29 @@ namespace Server
                     //byte[] dataLength = networkdatahelper.Receive(largoDataLength);
                     byte[] data = networkdatahelper.Receive(BitConverter.ToInt32(dataLength));
                      string message = Encoding.UTF8.GetString(data);
-                        //Console.WriteLine("Mensaje Recibido: {0}", message);
-                    
+                    //Console.WriteLine("Mensaje Recibido: {0}", message);
+                    string[] data8 = message.Split(ProtocolSpecification.fieldsSeparator);
                     // Feo pero funciona - Algo para saber quien soy
                     string algo = socketClient.RemoteEndPoint.ToString()
                                   ?? string.Empty;
                    
                     string[] datos = algo.Split(":");
                     Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message, datos[0], datos[1]);
-                    
+                    switch (data8[0]) {
+                        case "0":
+                            {
+                                var usuario = data8[1]; 
+                                var pass = data8[2]; 
+                                Console.WriteLine(data8[1] + data8[2]);
+                               break;
+
+                            }
+
+                        case "8":
+
+                            { break; }
+                            default: { break; }
+                    }
 
 
                 }
