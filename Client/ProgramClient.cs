@@ -49,16 +49,16 @@ namespace ClientApp
 
             while (!salir)
             {
-                Console.WriteLine(0);
-                Console.WriteLine(1);
-                Console.WriteLine(2);
-                Console.WriteLine(3);
-                Console.WriteLine(4);
-                Console.WriteLine(5);
-                Console.WriteLine(6);
-                Console.WriteLine(7);
-                Console.WriteLine(8);
-                Console.WriteLine(9);
+                Console.WriteLine("0)  Conectarse (previa autenticación) y desconectarse al servidor");
+                Console.WriteLine("1) Alta de usuario");
+                Console.WriteLine("2) Alta de repuesto");
+                Console.WriteLine("3) Alta de Categoría de repuesto");
+                Console.WriteLine("4) Asociar Categorías a los repuestos");
+                Console.WriteLine("5) Asociar foto a repuesto");
+                Console.WriteLine("6) Consultar repuestos existentes");
+                Console.WriteLine("7) Consultar un repuesto específico");
+                Console.WriteLine("8) Enviar y recibir mensajes");
+                Console.WriteLine("9) Configuración");
 
                 cmd = Console.ReadLine();
 
