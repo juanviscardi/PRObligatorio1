@@ -12,7 +12,6 @@ namespace ClientApp
     public class ProgramClient
     {
         static readonly SettingsManager settingsMng = new SettingsManager();
-        //NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
 
         public static void Main(string[] args)
         {
@@ -26,7 +25,7 @@ namespace ClientApp
 
             //endPoint hacia server
             var remoteEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
-            
+
             //socket y EndPint Ciente
             Console.WriteLine("Starting Client Application...!");
             var socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -35,7 +34,7 @@ namespace ClientApp
             socketClient.Bind(localEndPoint);
             Console.WriteLine("Starting Client");
             Console.WriteLine("Connecting.......");
-            
+
             socketClient.Connect(remoteEndPoint); // Me conecto al servidor
             Console.WriteLine("Connected to Server!!!!");
 
@@ -44,21 +43,21 @@ namespace ClientApp
             /******* DE ACA PARA ABAJO ES LO QUE HAY QUE ENAPSULAR   **************************************/
 
             bool salir = false;
-            
+
             var cmd = "";
 
             while (!salir)
             {
-                Console.WriteLine("0)  Conectarse (previa autenticación) y desconectarse al servidor");
-                Console.WriteLine("1) Alta de usuario");
-                Console.WriteLine("2) Alta de repuesto");
-                Console.WriteLine("3) Alta de Categoría de repuesto");
-                Console.WriteLine("4) Asociar Categorías a los repuestos");
-                Console.WriteLine("5) Asociar foto a repuesto");
-                Console.WriteLine("6) Consultar repuestos existentes");
-                Console.WriteLine("7) Consultar un repuesto específico");
-                Console.WriteLine("8) Enviar y recibir mensajes");
-                Console.WriteLine("9) Configuración");
+                Console.WriteLine("0 - Conectarse (previa autenticación) y desconectarse al servidor");
+                Console.WriteLine("1 - Alta de usuario");
+                Console.WriteLine("2 - Alta de repuesto");
+                Console.WriteLine("3 - Alta de Categoría de repuesto");
+                Console.WriteLine("4 - Asociar Categorías a los repuestos");
+                Console.WriteLine("5 - Asociar foto a repuesto");
+                Console.WriteLine("6 - Consultar repuestos existentes");
+                Console.WriteLine("7 - Consultar un repuesto específico");
+                Console.WriteLine("8 - Enviar y recibir mensajes");
+                Console.WriteLine("9 - Configuración");
 
                 cmd = Console.ReadLine();
 
@@ -73,40 +72,31 @@ namespace ClientApp
                             Console.WriteLine("Please enter password");
                             string password = Console.ReadLine();
                             //Armo string que voy a mandar
-                            string data0 = cmd + 
-                                    ProtocolSpecification.fieldsSeparator + 
-                                    username + ProtocolSpecification.fieldsSeparator + 
+                            string data0 = cmd +
+                                    ProtocolSpecification.fieldsSeparator +
+                                    username + ProtocolSpecification.fieldsSeparator +
                                     password;
                             //Mando la info al server
                             //Console.WriteLine(data0);
 
-                            //while (!salirCRF8 && !salir)
-                            //{
-                                /*var message = Console.ReadLine();
-                                //if (string.IsNullOrEmpty(message) || message.Equals("exit", StringComparison.Ordinal))
-                                {
-                                    salirCRF8 = true;
-                                }
-                                else
-                                {*/
-                                    byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
-                                    int datalength = data.Length;
-                                    byte[] dataLength = BitConverter.GetBytes(datalength);
-                                    try
-                                    {
-                                        networkdatahelper.Send(dataLength);
-                                        networkdatahelper.Send(data);
-                                    }
-                                    catch (SocketException)
-                                    {
-                                        Console.WriteLine("Perdi la conexion con el server");
-                                        salir = true;
+                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
+                            int datalength = data.Length;
+                            byte[] dataLength = BitConverter.GetBytes(datalength);
+                            try
+                            {
+                                networkdatahelper.Send(dataLength);
+                                networkdatahelper.Send(data);
+                            }
+                            catch (SocketException)
+                            {
+                                Console.WriteLine("Perdi la conexion con el server");
+                                salir = true;
 
-                                    }
+                            }
 
-                                //}
+                            //}
 
-                                
+
                             //}
 
                             //VVeo que hago segun lo que me dice el server
@@ -129,7 +119,7 @@ namespace ClientApp
 
                             Console.WriteLine("Please enter nombre repueasto");
                             string nombreRepuesto = Console.ReadLine();
-                            Console.WriteLine("Please enter proedor repueasto");
+                            Console.WriteLine("Please enter provedor repueasto");
                             string proveedorRepuesto = Console.ReadLine();
                             Console.WriteLine("Please enter marca repueasto");
                             string marcaRepuesto = Console.ReadLine();
@@ -239,9 +229,9 @@ namespace ClientApp
                 }
             }
 
-            
 
-           
+
+
             Console.WriteLine("Will close Connection....");
 
             socketClient.Shutdown(SocketShutdown.Both); // Desconecto ambos sentidos de la connecion

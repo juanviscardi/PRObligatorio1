@@ -16,7 +16,7 @@ namespace Common
         public const int MaxPacketSize = 32768; //32KB
 
         //separador para usurio/password o para repuestos o algo mas
-        public const string fieldsSeparator = "||";
+        public const string fieldsSeparator = ";";
         public const string valuesSeparator = ":";
 
         public static long CalculateFileParts(long fileSize)
