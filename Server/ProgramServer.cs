@@ -12,7 +12,7 @@ namespace Server
         static readonly SettingsManager settingsMng = new SettingsManager();
         static Dictionary<string, string> usuarios = new();
         static Dictionary<string, string[]> mensajes = new();
-        static List<repuesto> repuestos = new();
+        static List<Repuesto> repuestos = new();
 
 
         public static void Main(string[] args)
@@ -109,39 +109,33 @@ namespace Server
                                 var pass = messageConTodo[2];
                                 Console.WriteLine("Usuario: {0} pass: {1}", messageConTodo[1], messageConTodo[2]);
                                 usuarios.Add(usuario,pass);
-                              string freno = "";
-                                break;
-
-                            }
-
-                        case "8":
-                            {
-                                mensajes.Add(messageConTodo[1], datos);
-                                Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", messageConTodo[1], datos[0], datos[1]);
-                                string freno2 = "";
                                 break;
                             }
-
-                        //********************************
                         case "2":
                             {
                                 var repuestoName = messageConTodo[1];
                                 var repuestoProveedor = messageConTodo[2];
                                 var repuestoMarca = messageConTodo[3];
 
-                                repuesto repu = new repuesto(
+                                Repuesto repu = new Repuesto(
                                                    repuestoName,
                                                    repuestoProveedor,
                                                    repuestoMarca);
 
                                 repuestos.Add(repu);
-
-                                string freno3 = "";
                                 break;
                             }
-                            
-                            //*******************************
-
+                        case "5":
+                            {
+                                Console.WriteLine("TODO: Preguntar al profe, solo nos llega la imagen y no sabemos asociar nombre repuesto o imagen a este caso");
+                                break;
+                            }
+                        case "8":
+                            {
+                                mensajes.Add(messageConTodo[1], datos);
+                                Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", messageConTodo[1], datos[0], datos[1]);
+                                break;
+                            }
                         default: { break; }
                     } 
 

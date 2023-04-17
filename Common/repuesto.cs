@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Common
 {
-    public class repuesto
+    public class Repuesto
     {
         // Auto-implemented properties.
 
@@ -15,15 +15,22 @@ namespace Common
         public string Marca { get; set; }
 
 
-        public repuesto()
+        public Repuesto()
         {
         }
 
-        public repuesto(string name, string proveedor, string marca)
+        public Repuesto(string name, string proveedor, string marca)
         {
             this.Name = name;
             this.Proveedor = proveedor;
             this.Marca = marca;
+        }
+        public override string ToString ()
+        {
+            return ProtocolSpecification.fieldsSeparator +
+                                this.Name + ProtocolSpecification.fieldsSeparator +
+                                this.Proveedor + ProtocolSpecification.fieldsSeparator +
+                                this.Marca;
         }
     }
 }

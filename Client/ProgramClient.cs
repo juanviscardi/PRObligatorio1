@@ -116,48 +116,44 @@ namespace ClientApp
                             Console.WriteLine("CRF2 Alta de repuesto.");
                             Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
                             Console.WriteLine("id, nombre, proveedor y marca .");
-
-                            Console.WriteLine("Please enter nombre repueasto");
-                            string nombreRepuesto = Console.ReadLine();
-                            Console.WriteLine("Please enter provedor repueasto");
-                            string proveedorRepuesto = Console.ReadLine();
-                            Console.WriteLine("Please enter marca repueasto");
-                            string marcaRepuesto = Console.ReadLine();
-
-                            //PRUEBA***************************
-                            
-                            repuesto repu = new repuesto(
-                                                    nombreRepuesto ?? string.Empty, 
-                                                    proveedorRepuesto ?? string.Empty, 
-                                                    marcaRepuesto ?? string.Empty);
-
-                            string data0 = cmd + ProtocolSpecification.fieldsSeparator + 
-                                nombreRepuesto + ProtocolSpecification.fieldsSeparator +
-                                proveedorRepuesto + ProtocolSpecification.fieldsSeparator +
-                                marcaRepuesto;
-
-                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
-                            int datalength = data.Length;
-                            byte[] dataLength = BitConverter.GetBytes(datalength);
+                            Repuesto repuesto;
                             try
                             {
+                                Console.WriteLine("Please enter nombre repuesto");
+                                string nombreRepuesto = Console.ReadLine();
+                                if (string.IsNullOrEmpty(nombreRepuesto))
+                                {
+                                    throw new Exception("El nombre del repuesto no puede ser vacio");
+                                }
+                                Console.WriteLine("Please enter proveedor repuesto");
+                                string proveedorRepuesto = Console.ReadLine();
+                                if (string.IsNullOrEmpty(proveedorRepuesto))
+                                {
+                                    throw new Exception("El nombre del proveedor no puede ser vacio");
+                                }
+                                Console.WriteLine("Please enter marca repuesto");
+                                string marcaRepuesto = Console.ReadLine();
+                                if (string.IsNullOrEmpty(marcaRepuesto))
+                                {
+                                    throw new Exception("La marca del repuesto no puede ser vacia");
+                                }
+                                repuesto = new Repuesto(
+                                                    nombreRepuesto ?? string.Empty,
+                                                    proveedorRepuesto ?? string.Empty,
+                                                    marcaRepuesto ?? string.Empty);
+                                string data0 = cmd + repuesto.ToString();
+                                byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
+                                int datalength = data.Length;
+                                byte[] dataLength = BitConverter.GetBytes(datalength);
                                 networkdatahelper.Send(dataLength);
                                 networkdatahelper.Send(data);
-                            }
-                            catch (SocketException)
+                            } catch (Exception ex)
                             {
+                                Console.WriteLine(ex.Message);
+                                // chequear si es un SocketException y poner se perdio conexion
                                 Console.WriteLine("Perdi la conexion con el server");
-                                salir = true;
-
+                                //salir = true;
                             }
-
-                            //*********************************
-
-
-                            Console.WriteLine(data);
-                            Console.WriteLine("TODO");
-                            Console.WriteLine("TODO");
-                            Console.ReadLine();
                         }
                         break;
                     case "3":   //CRF3 Alta de Categoría de repuesto.
@@ -177,8 +173,39 @@ namespace ClientApp
                     case "5":   //CRF5 Asociar foto a repuesto.
                                 //El sistema debe permitir subir una foto y asociarla a un repuesto específico.
                         {
-                            Console.WriteLine("TODO");
-                            Console.ReadLine();
+                            FileHandler fileHandler = new FileHandler();
+                            Console.WriteLine("Por favor escribir el path del archivo a transferir");
+                            string path = Console.ReadLine() ?? string.Empty;
+                            while(string.IsNullOrEmpty(path) || path.Equals("exit", StringComparison.Ordinal) || !fileHandler.FileExists(path))
+                            {
+                                if(path.Equals("exit", StringComparison.Ordinal))
+                                {
+                                    break;
+                                }
+                                if (string.IsNullOrEmpty(path))
+                                {
+                                    Console.WriteLine("El path no puede ser vacio, escriba uno o escriba exit para salir");
+                                    path = Console.ReadLine() ?? string.Empty;
+                                    continue;
+                                }
+                                if(!fileHandler.FileExists(path))
+                                {
+                                    Console.WriteLine("El path no lleva a no lleva a ningun archivo valido, por favor  escriba uno o escriba exit para salir");
+                                    path = Console.ReadLine() ?? string.Empty;
+                                    continue;
+                                }
+                                    
+                            }
+                            Console.WriteLine("Escribir el nombre del repuesto para asociarle la foto");
+                            string nombreRepuesto = Console.ReadLine() ?? string.Empty;
+                            // mandarle al server el nombre del respuesto y avisarle que le voy a mandar una imagen, preguntar en clase
+
+
+
+
+                            FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
+                            fileCommsHandler.SendFile(path);
+
                         }
                         break;
                     case "6":   //CRF6 Consultar repuestos existentes.
