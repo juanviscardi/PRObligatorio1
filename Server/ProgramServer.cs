@@ -12,6 +12,7 @@ namespace Server
         static readonly SettingsManager settingsMng = new SettingsManager();
         static Dictionary<string, string> usuarios = new();
         static Dictionary<string, string[]> mensajes = new();
+        static List<repuesto> repuestos = new();
 
 
         public static void Main(string[] args)
@@ -96,7 +97,8 @@ namespace Server
                     //string[] data8 = message.Split(ProtocolSpecification.fieldsSeparator);
                     // Feo pero funciona - Algo para saber quien soy
                     string algo = socketClient.RemoteEndPoint.ToString() ?? string.Empty;
-                    string[] datos = algo.Split(":");
+                    
+                    string[] datos = algo.Split(":"); //IPAddress : Puerto
 
                     // Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message, datos[0], datos[1]);
                     switch (messageConTodo[0])
@@ -113,10 +115,33 @@ namespace Server
                             }
 
                         case "8":
-                            mensajes.Add(messageConTodo[1], datos);
-                            Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", messageConTodo[1], datos[0], datos[1]);
-                          string freno2 = "";
-                            break; 
+                            {
+                                mensajes.Add(messageConTodo[1], datos);
+                                Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", messageConTodo[1], datos[0], datos[1]);
+                                string freno2 = "";
+                                break;
+                            }
+
+                        //********************************
+                        case "2":
+                            {
+                                var repuestoName = messageConTodo[1];
+                                var repuestoProveedor = messageConTodo[2];
+                                var repuestoMarca = messageConTodo[3];
+
+                                repuesto repu = new repuesto(
+                                                   repuestoName,
+                                                   repuestoProveedor,
+                                                   repuestoMarca);
+
+                                repuestos.Add(repu);
+
+                                string freno3 = "";
+                                break;
+                            }
+                            
+                            //*******************************
+
                         default: { break; }
                     } 
 

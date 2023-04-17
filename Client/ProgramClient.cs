@@ -124,10 +124,36 @@ namespace ClientApp
                             Console.WriteLine("Please enter marca repueasto");
                             string marcaRepuesto = Console.ReadLine();
 
-                            string data =
+                            //PRUEBA***************************
+                            
+                            repuesto repu = new repuesto(
+                                                    nombreRepuesto ?? string.Empty, 
+                                                    proveedorRepuesto ?? string.Empty, 
+                                                    marcaRepuesto ?? string.Empty);
+
+                            string data0 = cmd + ProtocolSpecification.fieldsSeparator + 
                                 nombreRepuesto + ProtocolSpecification.fieldsSeparator +
                                 proveedorRepuesto + ProtocolSpecification.fieldsSeparator +
                                 marcaRepuesto;
+
+                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
+                            int datalength = data.Length;
+                            byte[] dataLength = BitConverter.GetBytes(datalength);
+                            try
+                            {
+                                networkdatahelper.Send(dataLength);
+                                networkdatahelper.Send(data);
+                            }
+                            catch (SocketException)
+                            {
+                                Console.WriteLine("Perdi la conexion con el server");
+                                salir = true;
+
+                            }
+
+                            //*********************************
+
+
                             Console.WriteLine(data);
                             Console.WriteLine("TODO");
                             Console.WriteLine("TODO");
