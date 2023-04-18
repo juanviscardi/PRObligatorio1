@@ -166,6 +166,12 @@ namespace ClientApp
                     case "4":   //CRF4 Asociar Categorías a los repuestos.
                                 //El sistema debe permitir asociar categorías a los repuestos.
                         {
+                            /* 
+                             Listo todos los repuestos
+                                selecciono uno 
+                                    asocio categoria del repueasto  
+                                    
+                           */
                             Console.WriteLine("TODO");
                             Console.ReadLine();
                         }
@@ -200,7 +206,15 @@ namespace ClientApp
                             string nombreRepuesto = Console.ReadLine() ?? string.Empty;
                             // mandarle al server el nombre del respuesto y avisarle que le voy a mandar una imagen, preguntar en clase
 
+                            //***********************************
 
+                           /* 
+                             Listo todos los repuestos
+                                selecciono uno 
+                                    subo foto  
+                                    comento foto
+                           */
+                            //**********************************
 
 
                             FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
@@ -211,6 +225,7 @@ namespace ClientApp
                     case "6":   //CRF6 Consultar repuestos existentes.
                                 //El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
                         {
+                            // Listo todo los repuestos
                             Console.WriteLine("TODO");
                             Console.ReadLine();
                         }
@@ -218,6 +233,11 @@ namespace ClientApp
                     case "7":   //CRF7 Consultar un repuesto específico.
                                 //El sistema deberá poder buscar un repuesto específico.
                                 //También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
+                        /* 
+                    Listo todos los repuestos
+                       selecciono uno 
+                           descargo su foto
+                  */
                         {
                             Console.WriteLine("TODO");
                             Console.ReadLine();
