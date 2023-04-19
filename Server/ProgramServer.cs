@@ -125,9 +125,21 @@ namespace Server
                                 repuestos.Add(repu);
                                 break;
                             }
+                        case "4":
+                            {
+                                Console.WriteLine("TODO");
+                                break;
+                            }
                         case "5":
                             {
                                 Console.WriteLine("TODO: Preguntar al profe, solo nos llega la imagen y no sabemos asociar nombre repuesto o imagen a este caso");
+                                break;
+                            }
+                        
+                        case "6":
+                            {
+                                Console.WriteLine("TODO");
+                                repuestos.ToList().ForEach(x => Console.WriteLine(x));
                                 break;
                             }
                         case "8":

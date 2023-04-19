@@ -172,6 +172,20 @@ namespace ClientApp
                                     asocio categoria del repueasto  
                                     
                            */
+                            Console.WriteLine("CRF4 Asociar Categorías a los repuestos.");
+                            Console.WriteLine("El sistema debe permitir asociar categorías a los repuestos.");
+
+                            //*******************************
+                            string data0 = cmd;
+                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
+                            int datalength = data.Length;
+                            byte[] dataLength = BitConverter.GetBytes(datalength);
+                            networkdatahelper.Send(dataLength);
+                            networkdatahelper.Send(data);
+
+
+                            //***********************************
+
                             Console.WriteLine("TODO");
                             Console.ReadLine();
                         }
@@ -225,6 +239,20 @@ namespace ClientApp
                     case "6":   //CRF6 Consultar repuestos existentes.
                                 //El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
                         {
+                            //*******************************************
+
+                            Console.WriteLine("CRF6 Consultar repuestos existentes.");
+                            Console.WriteLine("El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.");
+
+                            //*******************************
+                            string data0 = cmd;
+                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
+                            int datalength = data.Length;
+                            byte[] dataLength = BitConverter.GetBytes(datalength);
+                            networkdatahelper.Send(dataLength);
+                            networkdatahelper.Send(data);
+
+                            //*******************************************
                             // Listo todo los repuestos
                             Console.WriteLine("TODO");
                             Console.ReadLine();
