@@ -1,5 +1,6 @@
 ﻿using Common;
 using System.Configuration;
+using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -91,7 +92,7 @@ namespace Server
                     //byte[] dataLength = networkdatahelper.Receive(largoDataLength);
                     byte[] data = networkdatahelper.Receive(BitConverter.ToInt32(dataLength));
                     string message = Encoding.UTF8.GetString(data);
-                    string[] messageConTodo = message.Split(ProtocolSpecification.fieldsSeparator);
+                    // string[] messageConTodo = message.Split(ProtocolSpecification.fieldsSeparator);
 
                     //Console.WriteLine("Mensaje Recibido: {0}", message);
                     //string[] data8 = message.Split(ProtocolSpecification.fieldsSeparator);
@@ -101,21 +102,30 @@ namespace Server
                     string[] datos = algo.Split(":"); //IPAddress : Puerto
 
                     // Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message, datos[0], datos[1]);
-                    switch (messageConTodo[0])
+                    switch (message)
                     {
                         case "0":
                             {
-                                var usuario = messageConTodo[1];
-                                var pass = messageConTodo[2];
-                                Console.WriteLine("Usuario: {0} pass: {1}", messageConTodo[1], messageConTodo[2]);
+                                byte[] dataLength0 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                byte[] data0 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength0));
+                                string message0 = Encoding.UTF8.GetString(data0);
+                                string[] messageConTodo = message0.Split(ProtocolSpecification.fieldsSeparator);
+                                var usuario = messageConTodo[0];
+                                var pass = messageConTodo[1];
+                                Console.WriteLine("Usuario: {0} pass: {1}", usuario, pass);
+                                // bloquear con lock porque varios usuarios pueden agregar al mismo tiempo y puede ser el mismo usuario por ejemplo, esto es para todos los c
                                 usuarios.Add(usuario,pass);
                                 break;
                             }
                         case "2":
                             {
-                                var repuestoName = messageConTodo[1];
-                                var repuestoProveedor = messageConTodo[2];
-                                var repuestoMarca = messageConTodo[3];
+                                byte[] dataLength2 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                byte[] data2 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength2));
+                                string message2 = Encoding.UTF8.GetString(data2);
+                                string[] messageConTodo = message2.Split(ProtocolSpecification.fieldsSeparator);
+                                var repuestoName = messageConTodo[0];
+                                var repuestoProveedor = messageConTodo[1];
+                                var repuestoMarca = messageConTodo[2];
 
                                 Repuesto repu = new Repuesto(
                                                    repuestoName,
@@ -132,20 +142,32 @@ namespace Server
                             }
                         case "5":
                             {
-                                Console.WriteLine("TODO: Preguntar al profe, solo nos llega la imagen y no sabemos asociar nombre repuesto o imagen a este caso");
+                                byte[] dataLength5 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                byte[] data5 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength5));
+                                string nombreRepuesto = Encoding.UTF8.GetString(data5);
+                                FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
+                                string nombreArchivo = fileCommsHandler.ReceiveFile();
+                                // el archivo queda guardado en el bin
+                                Console.WriteLine("Nombre Repuesto: {0}, Nombre Archivo: {1}", nombreRepuesto, nombreArchivo);
+                                // falta revisar que el repuesto exista, y agregar el path al repuesto en el atributo foto, ver si queremos agregar mas de una foto o no
                                 break;
                             }
                         
                         case "6":
                             {
+                                // hay que poner varios receive
+                                // networkdatahelper.Receive(BitConverter.ToInt32(dataLength))
                                 Console.WriteLine("TODO");
                                 repuestos.ToList().ForEach(x => Console.WriteLine(x));
                                 break;
                             }
                         case "8":
                             {
-                                mensajes.Add(messageConTodo[1], datos);
-                                Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", messageConTodo[1], datos[0], datos[1]);
+                                byte[] dataLength8 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                byte[] data8 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength8));
+                                string message8 = Encoding.UTF8.GetString(data8);
+                                mensajes.Add(message8, datos);
+                                Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message8, datos[0], datos[1]);
                                 break;
                             }
                         default: { break; }

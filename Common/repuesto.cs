@@ -13,6 +13,7 @@ namespace Common
         public string Name { get; set; }
         public string Proveedor { get; set; }
         public string Marca { get; set; }
+        public string Foto { get; set; }
 
 
         public Repuesto()
@@ -27,8 +28,7 @@ namespace Common
         }
         public override string ToString ()
         {
-            return ProtocolSpecification.fieldsSeparator +
-                                this.Name + ProtocolSpecification.fieldsSeparator +
+            return this.Name + ProtocolSpecification.fieldsSeparator +
                                 this.Proveedor + ProtocolSpecification.fieldsSeparator +
                                 this.Marca;
         }

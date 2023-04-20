@@ -72,20 +72,12 @@ namespace ClientApp
                             Console.WriteLine("Please enter password");
                             string password = Console.ReadLine();
                             //Armo string que voy a mandar
-                            string data0 = cmd +
-                                    ProtocolSpecification.fieldsSeparator +
-                                    username + ProtocolSpecification.fieldsSeparator +
-                                    password;
+                            string data0 = username + ProtocolSpecification.fieldsSeparator + password;
                             //Mando la info al server
-                            //Console.WriteLine(data0);
-
-                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
-                            int datalength = data.Length;
-                            byte[] dataLength = BitConverter.GetBytes(datalength);
                             try
                             {
-                                networkdatahelper.Send(dataLength);
-                                networkdatahelper.Send(data);
+                                networkdatahelper.Send(cmd);
+                                networkdatahelper.Send(data0);
                             }
                             catch (SocketException)
                             {
@@ -141,12 +133,9 @@ namespace ClientApp
                                                     nombreRepuesto ?? string.Empty,
                                                     proveedorRepuesto ?? string.Empty,
                                                     marcaRepuesto ?? string.Empty);
-                                string data0 = cmd + repuesto.ToString();
-                                byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
-                                int datalength = data.Length;
-                                byte[] dataLength = BitConverter.GetBytes(datalength);
-                                networkdatahelper.Send(dataLength);
-                                networkdatahelper.Send(data);
+                                networkdatahelper.Send(cmd);
+                                string test = repuesto.ToString();
+                                networkdatahelper.Send(repuesto.ToString());
                             } catch (Exception ex)
                             {
                                 Console.WriteLine(ex.Message);
@@ -177,11 +166,7 @@ namespace ClientApp
 
                             //*******************************
                             string data0 = cmd;
-                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
-                            int datalength = data.Length;
-                            byte[] dataLength = BitConverter.GetBytes(datalength);
-                            networkdatahelper.Send(dataLength);
-                            networkdatahelper.Send(data);
+                            networkdatahelper.Send(cmd);
 
 
                             //***********************************
@@ -218,22 +203,10 @@ namespace ClientApp
                             }
                             Console.WriteLine("Escribir el nombre del repuesto para asociarle la foto");
                             string nombreRepuesto = Console.ReadLine() ?? string.Empty;
-                            // mandarle al server el nombre del respuesto y avisarle que le voy a mandar una imagen, preguntar en clase
-
-                            //***********************************
-
-                           /* 
-                             Listo todos los repuestos
-                                selecciono uno 
-                                    subo foto  
-                                    comento foto
-                           */
-                            //**********************************
-
-
+                            networkdatahelper.Send(cmd);
+                            networkdatahelper.Send(nombreRepuesto);
                             FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
                             fileCommsHandler.SendFile(path);
-
                         }
                         break;
                     case "6":   //CRF6 Consultar repuestos existentes.
@@ -245,12 +218,7 @@ namespace ClientApp
                             Console.WriteLine("El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.");
 
                             //*******************************
-                            string data0 = cmd;
-                            byte[] data = Encoding.UTF8.GetBytes(data0);  // Convierto de string a un array de bytes
-                            int datalength = data.Length;
-                            byte[] dataLength = BitConverter.GetBytes(datalength);
-                            networkdatahelper.Send(dataLength);
-                            networkdatahelper.Send(data);
+                            networkdatahelper.Send(cmd);
 
                             //*******************************************
                             // Listo todo los repuestos
@@ -275,7 +243,7 @@ namespace ClientApp
                                 //El sistema debe permitir que un mecánico envíe mensajes a otro,
                                 //y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
 
-                        Console.WriteLine("Type a message a press enter to send it");
+                        Console.WriteLine("Type a message a press enter to send it, write exit to exit");
                         //NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
                         bool salirCRF8 = false;
                         while (!salirCRF8 && !salir)
@@ -287,15 +255,11 @@ namespace ClientApp
                             }
                             else
                             {
-                                message = cmd + ProtocolSpecification.fieldsSeparator + message;
-
-                                byte[] data = Encoding.UTF8.GetBytes(message);  // Convierto de string a un array de bytes
-                                int datalength = data.Length;
-                                byte[] dataLength = BitConverter.GetBytes(datalength);
                                 try
                                 {
-                                    networkdatahelper.Send(dataLength);
-                                    networkdatahelper.Send(data);
+
+                                    networkdatahelper.Send(cmd);
+                                    networkdatahelper.Send(message);
                                 }
                                 catch (SocketException)
                                 {

@@ -57,5 +57,14 @@ namespace Common
             return response;
 
         }
-    }
+
+        public void Send(string data)
+        {
+            byte[] bytesData = Encoding.UTF8.GetBytes(data);  // Convierto de string a un array de bytes
+            int datalength = bytesData.Length;
+            byte[] dataLength = BitConverter.GetBytes(datalength);
+            this.Send(dataLength);
+            this.Send(bytesData);
+        }
+    }   
 }
