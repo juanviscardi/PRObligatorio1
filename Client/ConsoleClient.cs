@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,22 +9,39 @@ namespace ClientApp
 {
     internal class ConsoleClientMenu
     {
-        public static void DisplayMainMenu(string userLogged)
+        public static void GetMenu(string userType)
         {
-            HeadMenuClient("CLIENT MAIN MENU", userLogged);
+            switch(userType)
+            {
+                case "admin":
+                    {
+                        HeadMenuClient("ADMIN MAIN MENU", "");
 
-            Console.WriteLine("1. REGISTER");
-            Console.WriteLine("2. LOGIN");
-            Console.WriteLine("3. EXIT");
-        }
+                        Console.WriteLine("1 - Anadir usuario");
+                        Console.WriteLine("2 - Configuracion");
+                        Console.WriteLine("3 - Cerrar Sesion");
+                        Console.WriteLine("4 - Salir");
+                        break;
+                    }
+                case "mecanico":
+                    {
+                        HeadMenuClient("Mecanico MAIN MENU", "");
 
-        public static void DisplayMainLoggedMenu(string userLogged)
-        {
-            HeadMenuClient("CLIENT MAIN MENU", userLogged);
-
-            Console.WriteLine("1. USERS");
-            Console.WriteLine("2. PHOTOS");
-            Console.WriteLine("3. LOGOUT");
+                        Console.WriteLine("1 - Alta de repuesto");
+                        Console.WriteLine("2 - Alta de Categoría de repuesto");
+                        Console.WriteLine("3 - Asociar Categorías a los repuestos");
+                        Console.WriteLine("4 - Asociar foto a repuesto");
+                        Console.WriteLine("5 - Consultar repuestos existentes");
+                        Console.WriteLine("6 - Consultar un repuesto específico");
+                        Console.WriteLine("7 - Enviar y recibir mensajes");
+                        Console.WriteLine("8 - Salir");
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
         }
 
         public static void DisplayPhotoMenu(string userLogged)
