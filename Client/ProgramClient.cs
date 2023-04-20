@@ -35,10 +35,22 @@ namespace ClientApp
             Console.WriteLine("Starting Client");
             Console.WriteLine("Connecting.......");
 
+            // Si las credenciales no correctas me conecto al server sino que siga tratando
             socketClient.Connect(remoteEndPoint); // Me conecto al servidor
             Console.WriteLine("Connected to Server!!!!");
 
             NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
+
+            //Las credenciales fueron correctascasi que desplpiego menu
+
+            // Menu para usuario ADMIN
+
+            // Menu para todos los usuarios
+            string userConnected = "";
+            ConsoleClientMenu.DisplayMainMenu(userConnected);
+
+            //ACA METO EL GRAN WHILE Y SACO LAS OPCIONES LISTADA DE A UNA DE ACA
+            Console.WriteLine();
 
             /******* DE ACA PARA ABAJO ES LO QUE HAY QUE ENAPSULAR   **************************************/
 
