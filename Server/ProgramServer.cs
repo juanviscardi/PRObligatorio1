@@ -197,16 +197,11 @@ namespace Server
                                             }
 
                                         }
-
-
-
-
                                         break;
                                     case "2":
                                         // Console.WriteLine("2 - Configuracion");
                                         clientIsConnected = true;
                                         break;
-                                    
                                 }
                                 break;
                             }
@@ -214,7 +209,7 @@ namespace Server
                             {
 
                                 switch (cmd)
-                                {
+                            {
                                     case "1":
                                         Console.WriteLine("CRF2 Alta de repuesto.");
                                         Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
@@ -249,14 +244,68 @@ namespace Server
                                             }
 
                                         }
+                                        break; 
+                       
 
-                                       
-                                        break;
                                     case "2":
                                         // Console.WriteLine("2 - Alta de Categoría de repuesto");
+
+                                        byte[] dataLength3 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                        byte[] data3 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength3));
+                                        string categoria = Encoding.UTF8.GetString(data3);
+                                      
+
+                                        lock (_agregarCategoria)
+                                        {
+                                            if (!categorias.Contains(categoria))
+                                            {
+                                                //Aca hay que hacer lock
+
+                                                categorias.Add(categoria);
+                                                networkdatahelper.Send("exito");
+                                            }
+                                            else
+                                            {
+                                                networkdatahelper.Send("la categoria ya existe");
+                                            }
+
+                                        }
+
                                         break;
                                     case "3":
                                         // Console.WriteLine("3 - Asociar Categorías a los repuestos");
+                                        
+                                        byte[] dataLength4 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                        byte[] data4 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength4));
+                                        string message4 = Encoding.UTF8.GetString(data4);
+                                        string[] messageConTodo4 = message4.Split(ProtocolSpecification.fieldsSeparator);
+                                        var repuestoName4 = messageConTodo4[0];
+                                        var categoria4 = messageConTodo4[1];
+                                       
+
+                                      
+
+
+                                        lock (_asociarCategoria)
+                                        {
+                                            Repuesto repuesto4;
+                                                repuestos.ToList().ForEach(x =>
+                                                {
+                                                    if (string.Equals(repuestoName4, x.Name)) repuesto4 = x;
+                                                });
+                                            if (!repuestos.Contains(repuesto4))
+                                            {
+                                                //Aca hay que hacer lock
+
+                                                repuestos.Add(repu);
+                                                networkdatahelper.Send("exito");
+                                            }
+                                            else
+                                            {
+                                                networkdatahelper.Send("el repuesto ya existe");
+                                            }
+
+                                        }
                                         break;
                                     case "4":
                                         // Console.WriteLine("4 - Asociar foto a repuesto");
