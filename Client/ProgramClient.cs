@@ -89,6 +89,18 @@ namespace ClientApp
                                     // Alta de usuario. Se debe poder dar de alta a un usuario (mecánico). 
                                     // Estafuncionalidad solo puede realizarse desde el usuario admin.
                                     // Console.WriteLine("1 - Anadir usuario");
+                                    Console.WriteLine("Ingrese Usuario: ");
+                                    string username = Console.ReadLine() ?? string.Empty;
+                                    Console.WriteLine("Ingrese Contrasena: ");
+                                    string password = Console.ReadLine() ?? string.Empty;
+                                    //Chequeo que no exista el usuarion que quiero crear
+                                    
+                                    networkdatahelper.Send(cmd);
+                                    networkdatahelper.Send(username);
+                                    //Creo el usuario
+
+                                    //Si existe vuelvo a pedir la data o doy opcion a salir
+
                                     break;
                                 case "2":
                                     // Console.WriteLine("2 - Configuracion");

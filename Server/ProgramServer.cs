@@ -11,7 +11,8 @@ namespace Server
     public class ProgramServer
     {
         static readonly SettingsManager settingsMng = new SettingsManager();
-        static Dictionary<string, string> usuarios = new();
+        //static Dictionary<string, string> usuarios = new();
+        static List<Usuario> usuarios = new();
         static Dictionary<string, string[]> mensajes = new();
         static List<Repuesto> repuestos = new();
 
@@ -158,6 +159,32 @@ namespace Server
                                         // Alta de usuario. Se debe poder dar de alta a un usuario (mecánico). 
                                         // Estafuncionalidad solo puede realizarse desde el usuario admin.
                                         // Console.WriteLine("1 - Anadir usuario");
+
+                                        Console.WriteLine("Alta de usuario. Se debe poder dar de alta a un usuario (mecánico)."); 
+                                        Console.WriteLine("Estafuncionalidad solo puede realizarse desde el usuario admin.");
+                                        Console.WriteLine("Console.WriteLine(1 - Anadir usuario");
+                                        
+                                        byte[] dataLength1 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                        byte[] data1 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength1));
+                                        string message1 = Encoding.UTF8.GetString(data1);
+                                        string[] messageConTodo = message1.Split(ProtocolSpecification.fieldsSeparator);
+                                        var userName = messageConTodo[0];
+                                        var userPassword = messageConTodo[1];
+
+                                        Usuario user = new Usuario(
+                                                           userName,
+                                                           userPassword,
+                                                           "mecanico");
+                                        if (!usuarios.Contains(user))
+                                        {
+                                            //Aca hay que hacer lock
+                                            usuarios.Add(user); 
+                                        }
+                                        else { }
+
+
+                                        
+
                                         break;
                                     case "2":
                                         // Console.WriteLine("2 - Configuracion");
@@ -228,7 +255,6 @@ namespace Server
                                         string message8 = Encoding.UTF8.GetString(data8);
                                         mensajes.Add(message8, datos);
                                         Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message8, datos[0], datos[1]);
-                                        break;
                                         break;
                                     case "8":
                                         // Console.WriteLine("8 - Salir");
