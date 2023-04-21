@@ -94,25 +94,23 @@ namespace ClientApp
                                     Console.WriteLine("Ingrese Contrasena: ");
                                     string password = Console.ReadLine() ?? string.Empty;
                                     //Chequeo que no exista el usuarion que quiero crear
-                                    
+                                    string message = username + ProtocolSpecification.fieldsSeparator + password;
                                     networkdatahelper.Send(cmd);
-                                    networkdatahelper.Send(username);
+                                    networkdatahelper.Send(message);
+
+                                    byte[] dataLength0 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                    byte[] data0 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength0));
+                                    string message0 = Encoding.UTF8.GetString(data0);
+
+                                    Console.WriteLine(message0);
                                     //Creo el usuario
 
                                     //Si existe vuelvo a pedir la data o doy opcion a salir
 
                                     break;
-                                case "2":
-                                    // Console.WriteLine("2 - Configuracion");
-                                    //CRF9  Configuración.
-                                    //Se deberá ser capaz de modificar los puertos e ip utilizados por el cliente y la clave del usuario admin sin necesidad de recompilar el proyecto.
-                                    //Dichos valores no deben estar “hardcodeados” en el código.
-                                    break;
-                                case "3":
+                               
+                                case "2": 
                                     // Console.WriteLine("3 - Cerrar Sesion");
-                                    break;
-                                case "4":
-                                    // Console.WriteLine("4 - Salir");
                                     salir = true;
                                     break;
                             }
@@ -127,6 +125,10 @@ namespace ClientApp
                                     Console.WriteLine("CRF2 Alta de repuesto.");
                                     Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
                                     Console.WriteLine("id, nombre, proveedor y marca .");
+
+
+
+
                                     break;
                                 case "2":
                                     // Console.WriteLine("2 - Alta de Categoría de repuesto");

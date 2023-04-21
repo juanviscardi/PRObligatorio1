@@ -18,9 +18,7 @@ namespace ClientApp
                         HeadMenuClient("ADMIN MAIN MENU", "");
 
                         Console.WriteLine("1 - Anadir usuario");
-                        Console.WriteLine("2 - Configuracion");
-                        Console.WriteLine("3 - Cerrar Sesion");
-                        Console.WriteLine("4 - Salir");
+                        Console.WriteLine("2 - Salir");
                         break;
                     }
                 case "mecanico":
@@ -58,11 +56,7 @@ namespace ClientApp
 
         private static void HeadMenuClient(string title, string userLogged)
         {
-            if (userLogged == "")
-            {
-                userLogged = "Waiting for somebody";
-            }
-            Console.Clear();
+            //Console.Clear();
             string dateTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
             Console.WriteLine("==============================================================");
             Console.WriteLine("User Logged: " + userLogged);

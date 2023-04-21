@@ -15,7 +15,12 @@ namespace Server
         static List<Usuario> usuarios = new();
         static Dictionary<string, string[]> mensajes = new();
         static List<Repuesto> repuestos = new();
+        static List<string> categorias = new();
 
+        private static readonly Object _agregarUsuario= new Object();
+        private static readonly Object _agregarRepuesto = new Object();
+        private static readonly Object _agregarCategoria = new Object();
+        private static readonly Object _asociarCategoria = new Object();
 
         public static void Main(string[] args)
         {
@@ -125,7 +130,7 @@ namespace Server
                         {
                             bool existeYEsValido = false;
                             usuarios.ToList().ForEach(x => {
-                                if (string.Equals(x.Key, usuario) && string.Equals(x.Value, pass))
+                                if (string.Equals(x.userName, usuario) && string.Equals(x.userPassword, pass))
                                 {
                                     existeYEsValido = true;
                                     usernameConnected = usuario;
@@ -175,26 +180,33 @@ namespace Server
                                                            userName,
                                                            userPassword,
                                                            "mecanico");
-                                        if (!usuarios.Contains(user))
-                                        {
-                                            //Aca hay que hacer lock
-                                            usuarios.Add(user); 
-                                        }
-                                        else { }
-
 
                                         
+                                        lock (_agregarUsuario)
+                                        {
+                                            if (!usuarios.Contains(user))
+                                            {
+                                                //Aca hay que hacer lock
+
+                                                usuarios.Add(user);
+                                                networkdatahelper.Send("exito");
+                                            }
+                                            else 
+                                            {
+                                                networkdatahelper.Send("el usuario ya existe");
+                                            }
+
+                                        }
+
+
+
 
                                         break;
                                     case "2":
                                         // Console.WriteLine("2 - Configuracion");
+                                        clientIsConnected = true;
                                         break;
-                                    case "3":
-                                        // Console.WriteLine("3 - Cerrar Sesion");
-                                        break;
-                                    case "4":
-                                        // Console.WriteLine("4 - Salir");
-                                        break;
+                                    
                                 }
                                 break;
                             }
@@ -216,11 +228,29 @@ namespace Server
                                         var repuestoMarca = messageConTodo[2];
 
                                         Repuesto repu = new Repuesto(
+                                                           repuestos.Count().ToString(),
                                                            repuestoName,
                                                            repuestoProveedor,
-                                                           repuestoMarca);
+                                                           repuestoMarca); ;
 
-                                        repuestos.Add(repu);
+
+                                        lock (_agregarRepuesto)
+                                        {
+                                            if (!repuestos.Contains(repu))
+                                            {
+                                                //Aca hay que hacer lock
+
+                                                repuestos.Add(repu);
+                                                networkdatahelper.Send("exito");
+                                            }
+                                            else
+                                            {
+                                                networkdatahelper.Send("el repuesto ya existe");
+                                            }
+
+                                        }
+
+                                       
                                         break;
                                     case "2":
                                         // Console.WriteLine("2 - Alta de Categoría de repuesto");
@@ -275,6 +305,12 @@ namespace Server
                     // Usando el valor de ex tal vez
 
                     Console.WriteLine("ERROR:" + "Client disconnected a lo bruto \n" + socketClient.RemoteEndPoint + "\n");
+                    
+
+                          // Hay que pasar a false la propiedad del usuario que se desconecto
+
+                    // No se si esto vale!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    
 
                     // ESTE ERROR ME LO COMO (NO LO MUESTRO)
                     // O LO TIRO A UNA BASE DE EVENTOS/ERRORES
@@ -282,9 +318,13 @@ namespace Server
 
                     clientIsConnected = false;
                 }
+
             }
+            socketClient.Shutdown(SocketShutdown.Both);
+            socketClient.Close();
+            socketClient.Dispose();
             Console.WriteLine("Client disconnected");
-            Console.WriteLine(socketClient.RemoteEndPoint);
+            //Console.WriteLine(socketClient.RemoteEndPoint);
         }
     }
 }

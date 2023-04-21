@@ -10,27 +10,45 @@ namespace Common
     {
         // Auto-implemented properties.
 
+        public string Id { get; set; }  
         public string Name { get; set; }
         public string Proveedor { get; set; }
         public string Marca { get; set; }
         public string Foto { get; set; }
+        public List<string> Categorias { get; set; }
 
 
-        public Repuesto()
+        //public Repuesto()
+        //{
+        //    this.Categorias = new List<string>();
+        //    this.Id = "";
+        //}
+
+        public Repuesto(string id, string name, string proveedor, string marca)
         {
-        }
-
-        public Repuesto(string name, string proveedor, string marca)
-        {
+            this.Id = id;
             this.Name = name;
             this.Proveedor = proveedor;
             this.Marca = marca;
+            this.Categorias = new List<string>();
         }
         public override string ToString ()
         {
-            return this.Name + ProtocolSpecification.fieldsSeparator +
+            return this.Id + ProtocolSpecification.fieldsSeparator + 
+                    this.Name + ProtocolSpecification.fieldsSeparator +
                                 this.Proveedor + ProtocolSpecification.fieldsSeparator +
                                 this.Marca;
         }
+
+        
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is Repuesto))
+            { return false; }
+            Repuesto otroRepuesto = (Repuesto)obj;
+            return Name == otroRepuesto.Name;
+        }
     }
+}
 }
