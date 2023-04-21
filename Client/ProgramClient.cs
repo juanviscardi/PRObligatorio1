@@ -127,6 +127,26 @@ namespace ClientApp
                                     Console.WriteLine("id, nombre, proveedor y marca .");
 
 
+                                    Console.WriteLine("Ingrese nombre: ");
+                                    string nombre = Console.ReadLine() ?? string.Empty;
+                                    Console.WriteLine("Ingrese Proveedor: ");
+                                    string proveedor = Console.ReadLine() ?? string.Empty;
+                                    Console.WriteLine("Ingrese Marca: ");
+                                    string marca = Console.ReadLine() ?? string.Empty;
+
+                                    //Chequeo que no exista el usuarion que quiero crear
+                                    string message = nombre + ProtocolSpecification.fieldsSeparator + 
+                                        proveedor + ProtocolSpecification.fieldsSeparator + 
+                                        marca;
+                                    networkdatahelper.Send(cmd);
+                                    networkdatahelper.Send(message);
+
+                                    byte[] dataLength0 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
+                                    byte[] data0 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength0));
+                                    string message0 = Encoding.UTF8.GetString(data0);
+
+                                    Console.WriteLine(message0);
+
 
 
                                     break;
