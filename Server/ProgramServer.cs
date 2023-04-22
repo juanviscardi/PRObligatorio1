@@ -242,25 +242,38 @@ namespace Server
                                         break;
                                     case "3":
                                         // Console.WriteLine("3 - Asociar Categorías a los repuestos");
+                                        // envio nombre de repuestos existentes para que se listen en el cliente
+                                        List<string> repuestosExistentesNamesResponse = new List<string>();
+                                        repuestos.ToList().ForEach(x => {
+                                            repuestosExistentesNamesResponse.Add(x.Name);
+                                        });
+                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesNamesResponse));
+                                        // envio nombre de categorias existentes para que se listen en el cliente
+                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, categorias));
+                                        // recivo el nombre del repuesto elegio y la categoria elegida
                                         string asociarCategoriaRequest = networkdatahelper.Receive();
                                         string[] asociarCategoriaRequestConTodo = asociarCategoriaRequest.Split(ProtocolSpecification.fieldsSeparator);
-                                        var repuestoName4 = asociarCategoriaRequestConTodo[0];
-                                        var categoria4 = asociarCategoriaRequestConTodo[1];
+                                        string repuestoName4 = asociarCategoriaRequestConTodo[0];
+                                        string categoria4 = asociarCategoriaRequestConTodo[1];
                                         lock (_asociarCategoria)
                                         {
-                                            Repuesto repuesto4 = null;
-                                                repuestos.ToList().ForEach(x =>
-                                                {
-                                                    if (string.Equals(repuestoName4, x.Name)) repuesto4 = x;
-                                                });
+                                            Repuesto repuesto4 = repuestos.Find(x => string.Equals(repuestoName4, x.Name));
                                             if (repuesto4 != null && !repuestos.Contains(repuesto4))
                                             {
-                                                repuestos.Add(repuesto4);
-                                                networkdatahelper.Send("exito");
+                                                if (!repuesto4.Categorias.Contains(categoria4)) // Verifica si la categoría ya está presente en el Repuesto
+                                                {
+                                                    repuesto4.Categorias.Add(categoria4); // Agrega la nueva categoría al Repuesto
+                                                    repuestos.Add(repuesto4); // Actualiza el Repuesto en la lista repuestos
+                                                    networkdatahelper.Send("exito");
+                                                }
+                                                else
+                                                {
+                                                    networkdatahelper.Send("La categoría ya está presente en el Repuesto.");
+                                                }
                                             }
                                             else
                                             {
-                                                networkdatahelper.Send("el repuesto ya existe");
+                                                networkdatahelper.Send("El repuesto no existe.");
                                             }
                                         }
                                         break;
