@@ -36,11 +36,16 @@ namespace Common
         {
             return this.Id + ProtocolSpecification.fieldsSeparator + 
                     this.Name + ProtocolSpecification.fieldsSeparator +
-                                this.Proveedor + ProtocolSpecification.fieldsSeparator +
-                                this.Marca;
+                    this.Proveedor + ProtocolSpecification.fieldsSeparator +
+                    this.Marca;
         }
 
-        
+        public string ToStringListar()
+        {
+            return $"Id: {Id}, Name: {Name}, Proveedor: {Proveedor}, Marca: {Marca}, Foto: {Foto}, Categorias: {string.Join(", ", Categorias)}";
+        }
+
+
 
         public override bool Equals(object obj)
         {

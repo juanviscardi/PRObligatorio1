@@ -275,8 +275,11 @@ namespace Server
                                         break;
                                     case "5":
                                         // Console.WriteLine("5 - Consultar repuestos existentes");
-                                        Console.WriteLine("TODO");
-                                        repuestos.ToList().ForEach(x => Console.WriteLine(x));
+                                        List<string> repuestosExistentesResponse = new List<string>();
+                                        repuestos.ToList().ForEach(x => {
+                                            repuestosExistentesResponse.Add(x.ToStringListar());
+                                        });
+                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
                                         break;
                                     case "6":
                                         // Console.WriteLine("6 - Consultar un repuesto específico");
