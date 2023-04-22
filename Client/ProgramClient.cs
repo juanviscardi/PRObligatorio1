@@ -150,6 +150,18 @@ namespace ClientApp
                                     string nombresRepuestos = networkdatahelper.Receive();
                                     string nombresCategorias = networkdatahelper.Receive();
                                     List<string> listaNombresRepuestos = nombresRepuestos.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    if(string.Equals("", nombresRepuestos))
+                                    {
+                                        Console.WriteLine("No hay ningun repuesto creado aun. ");
+                                        networkdatahelper.Send("exit");
+                                        break;
+                                    }
+                                    if (string.Equals("", nombresCategorias))
+                                    {
+                                        Console.WriteLine("No hay ninguna categoria creada aun. ");
+                                        networkdatahelper.Send("exit");
+                                        break;
+                                    }
                                     Console.WriteLine("Repuestos: ");
                                     for (int i = 0; i < listaNombresRepuestos.Count; i++)
                                     {
@@ -160,7 +172,7 @@ namespace ClientApp
                                     Console.WriteLine("Categorias: ");
                                     for (int i = 0; i < listaCategoriasRepuestos.Count; i++)
                                     {
-                                        string nombreCategoriaIterado = listaNombresRepuestos[i];
+                                        string nombreCategoriaIterado = listaCategoriasRepuestos[i];
                                         Console.WriteLine($"{i + 1} - {nombreCategoriaIterado}");
                                     }
                                     Console.WriteLine("Ingrese nombre repuesto: ");
@@ -177,13 +189,27 @@ namespace ClientApp
                                     // Console.WriteLine("4 - Asociar foto a repuesto");
                                     //CRF5 Asociar foto a repuesto.
                                     //El sistema debe permitir subir una foto y asociarla a un repuesto específico.
+                                    networkdatahelper.Send(cmd);
+                                    string repuestosExistentesParaFoto = networkdatahelper.Receive();
+                                    List<string> listaRepuestosExistentesParaFoto = repuestosExistentesParaFoto.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    if (string.Equals("", repuestosExistentesParaFoto))
+                                    {
+                                        Console.WriteLine("No hay ningun repuesto creado aun. ");
+                                        networkdatahelper.Send("exit");
+                                        break;
+                                    }
+
+
                                     FileHandler fileHandler = new FileHandler();
                                     Console.WriteLine("Por favor escribir el path del archivo a transferir");
                                     string path = Console.ReadLine() ?? string.Empty;
-                                    while (string.IsNullOrEmpty(path) || path.Equals("exit", StringComparison.Ordinal) || !fileHandler.FileExists(path))
+                                    bool cancelar = false;
+                                    while ((string.IsNullOrEmpty(path) || path.Equals("exit", StringComparison.Ordinal) || !fileHandler.FileExists(path)) && !cancelar)
                                     {
                                         if (path.Equals("exit", StringComparison.Ordinal))
                                         {
+                                            networkdatahelper.Send("exit");
+                                            cancelar = true;
                                             break;
                                         }
                                         if (string.IsNullOrEmpty(path))
@@ -198,19 +224,65 @@ namespace ClientApp
                                             path = Console.ReadLine() ?? string.Empty;
                                             continue;
                                         }
-
+                                    }
+                                    if (cancelar)
+                                    {
+                                        break;
+                                    }
+                                    Console.WriteLine("Repuestos: ");
+                                    for (int i = 0; i < listaRepuestosExistentesParaFoto.Count; i++)
+                                    {
+                                        string nombreRepuestoParaFotoIterado = listaRepuestosExistentesParaFoto[i];
+                                        Console.WriteLine(nombreRepuestoParaFotoIterado);
                                     }
                                     Console.WriteLine("Escribir el nombre del repuesto para asociarle la foto");
                                     string nombreRepuesto = Console.ReadLine() ?? string.Empty;
-                                    networkdatahelper.Send(cmd);
                                     networkdatahelper.Send(nombreRepuesto);
+                                    string responseNombreRepuesto = networkdatahelper.Receive();
+                                    if(string.Equals(responseNombreRepuesto, "El repuesto no existe."))
+                                    {
+                                        Console.WriteLine(responseNombreRepuesto);
+                                        break;
+                                    }
+                                    // me fijo si existia el repuesto
                                     FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
                                     fileCommsHandler.SendFile(path);
+                                    string responseFotoAsociada = networkdatahelper.Receive();
+                                    Console.WriteLine(responseFotoAsociada);
                                     break;
                                 case "5":
                                     // Console.WriteLine("5 - Consultar repuestos existentes");
                                     //CRF6 Consultar repuestos existentes.
                                     //El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
+                                    networkdatahelper.Send(cmd);
+                                    Console.WriteLine("1 - Listar todos");
+                                    Console.WriteLine("2 - Buscar por nombre repuesto");
+                                    Console.WriteLine("3 - Buscar por nombre de la categoria");
+                                    Console.WriteLine("4 - Buscar por nombre archivo foto");
+                                    Console.WriteLine("5 - Buscar por nombre de proveedor");
+                                    Console.WriteLine("6 - Buscar por nombre de marca");
+                                    Console.WriteLine("Ingrese el numero de la opcion deseada");
+                                    string opcionListado = Console.ReadLine() ?? string.Empty;
+                                    networkdatahelper.Send(opcionListado);
+                                    if(opcionListado != "1")
+                                    {
+                                        Console.WriteLine("Escribir el nombre: ");
+                                        string nombreABuscar = Console.ReadLine() ?? string.Empty;
+                                        networkdatahelper.Send(nombreABuscar);
+                                    }
+                                    string repuestosExistentes = networkdatahelper.Receive();
+                                    if (string.Equals(repuestosExistentes, ""))
+                                    {
+                                        Console.WriteLine("No hay repuestos para mostrar. ");
+                                        break;
+                                    }
+                                    List<string> listaRepuestosExistentes = repuestosExistentes.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    Console.WriteLine("Repuestos: ");
+                                    for (int i = 0; i < listaRepuestosExistentes.Count; i++)
+                                    {
+                                        string nombreCategoriaIterado = listaRepuestosExistentes[i];
+                                        Console.WriteLine(nombreCategoriaIterado);
+                                    }
                                     break;
                                 case "6":
                                     // Console.WriteLine("6 - Consultar un repuesto específico");

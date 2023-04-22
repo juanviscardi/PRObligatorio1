@@ -19,6 +19,7 @@ namespace ClientApp
 
                         Console.WriteLine("1 - Anadir usuario");
                         Console.WriteLine("2 - Salir");
+                        Console.WriteLine();
                         break;
                     }
                 case "mecanico":
@@ -33,6 +34,7 @@ namespace ClientApp
                         Console.WriteLine("6 - Consultar un repuesto específico");
                         Console.WriteLine("7 - Enviar y recibir mensajes");
                         Console.WriteLine("8 - Salir");
+                        Console.WriteLine();
                         break;
                     }
                 default:

@@ -250,18 +250,26 @@ namespace Server
                                         networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, categorias));
                                         // recivo el nombre del repuesto elegio y la categoria elegida
                                         string asociarCategoriaRequest = networkdatahelper.Receive();
+                                        if(string.Equals(asociarCategoriaRequest, "exit"))
+                                        {
+                                            break;
+                                        }
                                         string[] asociarCategoriaRequestConTodo = asociarCategoriaRequest.Split(ProtocolSpecification.fieldsSeparator);
                                         string repuestoName4 = asociarCategoriaRequestConTodo[0];
                                         string categoria4 = asociarCategoriaRequestConTodo[1];
                                         lock (_asociarCategoria)
                                         {
                                             Repuesto repuesto4 = repuestos.Find(x => string.Equals(repuestoName4, x.Name));
-                                            if (repuesto4 != null && !repuestos.Contains(repuesto4))
+                                            if (repuesto4 != null)
                                             {
                                                 if (!repuesto4.Categorias.Contains(categoria4)) // Verifica si la categoría ya está presente en el Repuesto
                                                 {
+                                                    if(!categorias.Contains(categoria4))
+                                                    {
+                                                        networkdatahelper.Send("La categoría no existe");
+                                                        break;
+                                                    }
                                                     repuesto4.Categorias.Add(categoria4); // Agrega la nueva categoría al Repuesto
-                                                    repuestos.Add(repuesto4); // Actualiza el Repuesto en la lista repuestos
                                                     networkdatahelper.Send("exito");
                                                 }
                                                 else
@@ -276,21 +284,109 @@ namespace Server
                                         }
                                         break;
                                     case "4":
-                                        string nombreRepuesto = networkdatahelper.Receive();
+                                        List<string> repuestosExistentesParaFotoResponse = new List<string>();
+                                        repuestos.ToList().ForEach(x => {
+                                            repuestosExistentesParaFotoResponse.Add(x.Name);
+                                        });
+                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesParaFotoResponse));
+                                        string nombreRepuestoOExit = networkdatahelper.Receive();
+                                        if(string.Equals(nombreRepuestoOExit,"exit"))
+                                        {
+                                            break;
+                                        }
+                                        Repuesto repuesto5 = repuestos.Find(x => string.Equals(nombreRepuestoOExit, x.Name));
+                                        if (repuesto5 != null)
+                                        {
+                                            networkdatahelper.Send("El repuesto existe.");
+                                        }
+                                        else
+                                        {
+                                            networkdatahelper.Send("El repuesto no existe.");
+                                            break;
+                                        }
                                         FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
                                         string nombreArchivo = fileCommsHandler.ReceiveFile();
                                         // el archivo queda guardado en el bin
-                                        Console.WriteLine("Nombre Repuesto: {0}, Nombre Archivo: {1}", nombreRepuesto, nombreArchivo);
+                                        repuesto5.Foto = nombreArchivo;
+                                        networkdatahelper.Send("Se asocio la foto al repuesto.");
                                         // falta revisar que el repuesto exista, y agregar el path al repuesto en el atributo foto, ver si queremos agregar mas de una foto o no
 
                                         break;
                                     case "5":
                                         // Console.WriteLine("5 - Consultar repuestos existentes");
+                                        string opcionListado = networkdatahelper.Receive();
                                         List<string> repuestosExistentesResponse = new List<string>();
-                                        repuestos.ToList().ForEach(x => {
-                                            repuestosExistentesResponse.Add(x.ToStringListar());
-                                        });
-                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
+                                        switch (opcionListado)
+                                        {
+                                            case "1":
+                                                // Console.WriteLine("1 - Listar todos");
+                                                repuestos.ToList().ForEach(x =>
+                                                {
+                                                    repuestosExistentesResponse.Add(x.ToStringListar());
+                                                });
+                                                networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
+                                                break;
+                                            case "2":
+                                                // Console.WriteLine("2 - Buscar por nombre repuesto");
+                                                string opcionListadoNombre = networkdatahelper.Receive();
+                                                repuestos.ToList().ForEach(x =>
+                                                {
+                                                    if (string.Equals(x.Name, opcionListadoNombre))
+                                                    {
+                                                        repuestosExistentesResponse.Add(x.ToStringListar());
+                                                    }
+                                                });
+                                                networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
+                                                break;
+                                            case "3":
+                                                // Console.WriteLine("3 - Buscar por categoria");
+                                                string opcionListadoCategoria = networkdatahelper.Receive();
+                                                repuestos.ToList().ForEach(x =>
+                                                {
+                                                    if (x.Categorias.Contains(opcionListadoCategoria))
+                                                    {
+                                                        repuestosExistentesResponse.Add(x.ToStringListar());
+                                                    }
+                                                });
+                                                networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
+                                                break;
+                                            case "4":
+                                                // Console.WriteLine("4 - Buscar por nombre archivo foto");
+                                                string opcionListadoFoto = networkdatahelper.Receive();
+                                                repuestos.ToList().ForEach(x =>
+                                                {
+                                                    if (string.Equals(x.Foto, opcionListadoFoto))
+                                                    {
+                                                        repuestosExistentesResponse.Add(x.ToStringListar());
+                                                    }
+                                                });
+                                                networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
+                                                break;
+                                            case "5":
+                                                // Console.WriteLine("5 - Buscar por nombre de proveedor");
+                                                string opcionListadoProveedor = networkdatahelper.Receive();
+                                                repuestos.ToList().ForEach(x =>
+                                                {
+                                                    if (string.Equals(x.Proveedor, opcionListadoProveedor))
+                                                    {
+                                                        repuestosExistentesResponse.Add(x.ToStringListar());
+                                                    }
+                                                });
+                                                networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
+                                                break;
+                                            case "6":
+                                                // Console.WriteLine("6 - Buscar por nombre de marca")
+                                                string opcionListadoMarca = networkdatahelper.Receive();
+                                                repuestos.ToList().ForEach(x =>
+                                                {
+                                                    if (string.Equals(x.Marca, opcionListadoMarca))
+                                                    {
+                                                        repuestosExistentesResponse.Add(x.ToStringListar());
+                                                    }
+                                                });
+                                                networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesResponse));
+                                                break;
+                                        }
                                         break;
                                     case "6":
                                         // Console.WriteLine("6 - Consultar un repuesto específico");
