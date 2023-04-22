@@ -144,8 +144,34 @@ namespace ClientApp
                                     break;
                                 case "3":
                                     // Console.WriteLine("3 - Asociar Categorías a los repuestos");
-                                    //CRF4 Asociar Categorías a los repuestos.
-                                    //El sistema debe permitir asociar categorías a los repuestos.
+                                    // CRF4 Asociar Categorías a los repuestos.
+                                    // El sistema debe permitir asociar categorías a los repuestos.
+                                    networkdatahelper.Send(cmd);
+                                    string nombresRepuestos = networkdatahelper.Receive();
+                                    string nombresCategorias = networkdatahelper.Receive();
+                                    List<string> listaNombresRepuestos = nombresRepuestos.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    Console.WriteLine("Repuestos: ");
+                                    for (int i = 0; i < listaNombresRepuestos.Count; i++)
+                                    {
+                                        string nombreRepuestoIterado = listaNombresRepuestos[i];
+                                        Console.WriteLine($"{i + 1} - {nombreRepuestoIterado}");
+                                    }
+                                    List<string> listaCategoriasRepuestos = nombresCategorias.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    Console.WriteLine("Categorias: ");
+                                    for (int i = 0; i < listaCategoriasRepuestos.Count; i++)
+                                    {
+                                        string nombreCategoriaIterado = listaNombresRepuestos[i];
+                                        Console.WriteLine($"{i + 1} - {nombreCategoriaIterado}");
+                                    }
+                                    Console.WriteLine("Ingrese nombre repuesto: ");
+                                    string nombreRepuestoElegido = Console.ReadLine() ?? string.Empty;
+                                    Console.WriteLine("Ingrese categoria: ");
+                                    string nombreCategoriaElegida = Console.ReadLine() ?? string.Empty;
+                                    string nombreRepuestoCategoria = nombreRepuestoElegido + ProtocolSpecification.fieldsSeparator +
+                                        nombreCategoriaElegida;
+                                    networkdatahelper.Send(nombreRepuestoCategoria);
+                                    string asociarCateogoriaResponse = networkdatahelper.Receive();
+                                    Console.WriteLine(asociarCateogoriaResponse);
                                     break;
                                 case "4":
                                     // Console.WriteLine("4 - Asociar foto a repuesto");
