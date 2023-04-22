@@ -28,17 +28,17 @@ namespace ClientApp
             var remoteEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
 
             //socket y EndPint Ciente
-            Console.WriteLine("Starting Client Application...!");
+            Console.WriteLine("Iniciando Aplicacion de Cliente...!");
             var socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             var localEndPoint = new IPEndPoint(IPAddress.Parse(clientIp), clientPort);
 
             socketClient.Bind(localEndPoint);
-            Console.WriteLine("Starting Client");
-            Console.WriteLine("Connecting.......");
+            Console.WriteLine("Iniciando Cliente");
+            Console.WriteLine("Conectandose.......");
 
             // Si las credenciales no correctas me conecto al server sino que siga tratando
             socketClient.Connect(remoteEndPoint); // Me conecto al servidor
-            Console.WriteLine("Connected to Server!!!!");
+            Console.WriteLine("Conectado al Servidor!!!!");
 
             NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
             //Inicializo cmd en 0 que es la opcion de login en el servidor
@@ -85,7 +85,7 @@ namespace ClientApp
                                 case "1":
                                     //CRF1 Alta de usuario
                                     // Alta de usuario. Se debe poder dar de alta a un usuario (mecánico). 
-                                    // Esta funcionalidad solo puede realizarse desde el usuario admin.
+                                    // Esta funcionalidad solo puede realizarse desde el usuario administrador.
                                     Console.WriteLine("Ingrese Usuario: ");
                                     string username = Console.ReadLine() ?? string.Empty;
                                     Console.WriteLine("Ingrese Contrasena: ");
@@ -112,7 +112,7 @@ namespace ClientApp
                                 case "1":
                                     Console.WriteLine("CRF2 Alta de repuesto.");
                                     Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
-                                    Console.WriteLine("id, nombre, proveedor y marca .");
+                                    Console.WriteLine("id, nombre, proveedor y marca.");
 
 
                                     Console.WriteLine("Ingrese nombre: ");
@@ -223,7 +223,7 @@ namespace ClientApp
                                     //CRF8 Enviar y recibir mensajes.
                                     //El sistema debe permitir que un mecánico envíe mensajes a otro,
                                     //y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
-                                    Console.WriteLine("Type a message a press enter to send it, write exit to exit");
+                                    Console.WriteLine("Escriba un mensaje y presione enter para enviarlo, escriba exit para salir");
                                     bool salirCRF8 = false;
                                     while (!salirCRF8 && !salir)
                                     {
@@ -266,7 +266,7 @@ namespace ClientApp
                         }
                 }
             }
-            Console.WriteLine("Will close Connection....");
+            Console.WriteLine("Se Cerrara la Conexion....");
             socketClient.Shutdown(SocketShutdown.Both); // Desconecto ambos sentidos de la connecion
             socketClient.Close();
             socketClient.Dispose();
