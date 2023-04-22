@@ -24,7 +24,7 @@ namespace Server
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starting Server Application.....!!!");
+            Console.WriteLine("Iniciando Aplicacion de Servidor.....!!!");
 
             var socketServer = new Socket(
                 AddressFamily.InterNetwork,
@@ -38,7 +38,7 @@ namespace Server
             //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverPort);
             var localEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
 
-            Console.WriteLine("Server initialized with IP {0} and Port {1}", serverIp, serverPort);
+            Console.WriteLine("Servidor inicializado con IP {0} y Puerto {1}", serverIp, serverPort);
 
             // Asociamos el socket con el endpoint
             socketServer.Bind(localEndPoint);
@@ -50,7 +50,7 @@ namespace Server
             int clientes = 0;
             bool salir = false;
 
-            Console.WriteLine("Waiting for Clients.....\n");
+            Console.WriteLine("Esperando por Clientes.....\n");
 
             while (!salir)
             {
@@ -110,7 +110,7 @@ namespace Server
                         {
                             usernameConnected = usuario;
                             userType = "admin";
-                            Console.WriteLine("Usuario: {0} hizo login como admin", usuario);
+                            Console.WriteLine("Usuario: {0} hizo login como Administrador", usuario);
                             networkdatahelper.Send("admin");
                         }
                         else
@@ -126,7 +126,7 @@ namespace Server
                             if (existeYEsValido)
                             {
                                 userType = "mecanico";
-                                Console.WriteLine("Usuario: {0} hizo login con mecanico", usuario);
+                                Console.WriteLine("Usuario: {0} hizo login con Mecanico", usuario);
                                 networkdatahelper.Send("mecanico");
                             }
                             else
@@ -147,11 +147,11 @@ namespace Server
                                     case "1":
                                         //CRF1 Alta de usuario
                                         // Alta de usuario. Se debe poder dar de alta a un usuario (mecánico). 
-                                        // Estafuncionalidad solo puede realizarse desde el usuario admin.
+                                        // Esta funcionalidad solo puede realizarse desde el usuario administrador.
                                         // Console.WriteLine("1 - Anadir usuario");
 
                                         Console.WriteLine("Alta de usuario. Se debe poder dar de alta a un usuario (mecánico)."); 
-                                        Console.WriteLine("Estafuncionalidad solo puede realizarse desde el usuario admin.");
+                                        Console.WriteLine("Esta funcionalidad solo puede realizarse desde el usuario administrador.");
                                         Console.WriteLine("Console.WriteLine(1 - Anadir usuario");
 
                                         string altaUsuarioRequest = networkdatahelper.Receive();
@@ -169,8 +169,6 @@ namespace Server
                                         {
                                             if (!usuarios.Contains(user))
                                             {
-                                                //Aca hay que hacer lock
-
                                                 usuarios.Add(user);
                                                 networkdatahelper.Send("exito");
                                             }
@@ -196,7 +194,7 @@ namespace Server
                                     case "1":
                                         Console.WriteLine("CRF2 Alta de repuesto.");
                                         Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
-                                        Console.WriteLine("id, nombre, proveedor y marca .");
+                                        Console.WriteLine("id, nombre, proveedor y marca.");
                                         string altaRepuestoRequest = networkdatahelper.Receive();
                                         string[] altaRepuestoRequestConTodo = altaRepuestoRequest.Split(ProtocolSpecification.fieldsSeparator);
                                         var repuestoName = altaRepuestoRequestConTodo[0];
@@ -321,7 +319,7 @@ namespace Server
                     // ******* PONER UN MENSAJE ACORDE
                     // Usando el valor de ex tal vez
 
-                    Console.WriteLine("ERROR:" + "Client disconnected a lo bruto \n" + socketClient.RemoteEndPoint + "\n");
+                    Console.WriteLine("ERROR:" + "Cliente desconectado de manera forzada \n" + socketClient.RemoteEndPoint + "\n");
                     
 
                           // Hay que pasar a false la propiedad del usuario que se desconecto
@@ -341,7 +339,7 @@ namespace Server
             socketClient.Shutdown(SocketShutdown.Both);
             socketClient.Close();
             socketClient.Dispose();
-            Console.WriteLine("Client disconnected");
+            Console.WriteLine("Cliente desconectado");
         }
     }
 }
