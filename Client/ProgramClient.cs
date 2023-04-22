@@ -76,6 +76,7 @@ namespace ClientApp
             {
                 ConsoleClientMenu.GetMenu(userType);
                 string cmd = Console.ReadLine() ?? string.Empty;
+                networkdatahelper.Send(cmd);
                 switch (userType)
                 {
                     case "admin":
@@ -91,7 +92,6 @@ namespace ClientApp
                                     Console.WriteLine("Ingrese Contrasena: ");
                                     string password = Console.ReadLine() ?? string.Empty;
                                     string newUserRequest = username + ProtocolSpecification.fieldsSeparator + password;
-                                    networkdatahelper.Send(cmd);
                                     networkdatahelper.Send(newUserRequest);
                                     string newUserResponse = networkdatahelper.Receive();
                                     Console.WriteLine(newUserResponse);
@@ -126,7 +126,6 @@ namespace ClientApp
                                     string message = nombre + ProtocolSpecification.fieldsSeparator + 
                                         proveedor + ProtocolSpecification.fieldsSeparator + 
                                         marca;
-                                    networkdatahelper.Send(cmd);
                                     networkdatahelper.Send(message);
                                     string altaRepuestoResponse = networkdatahelper.Receive();
                                     Console.WriteLine(altaRepuestoResponse);
@@ -137,7 +136,6 @@ namespace ClientApp
                                     //El sistema debe permitir crear una Categoría para los repuestos.
                                     Console.WriteLine("Ingrese nombre de la nueva categoria: ");
                                     string nombreCategoria = Console.ReadLine() ?? string.Empty;
-                                    networkdatahelper.Send(cmd);
                                     networkdatahelper.Send(nombreCategoria);
                                     string altaCateogriaResponse = networkdatahelper.Receive();
                                     Console.WriteLine(altaCateogriaResponse);
@@ -146,7 +144,6 @@ namespace ClientApp
                                     // Console.WriteLine("3 - Asociar Categorías a los repuestos");
                                     // CRF4 Asociar Categorías a los repuestos.
                                     // El sistema debe permitir asociar categorías a los repuestos.
-                                    networkdatahelper.Send(cmd);
                                     string nombresRepuestos = networkdatahelper.Receive();
                                     string nombresCategorias = networkdatahelper.Receive();
                                     List<string> listaNombresRepuestos = nombresRepuestos.Split(ProtocolSpecification.fieldsSeparator).ToList();
@@ -189,7 +186,6 @@ namespace ClientApp
                                     // Console.WriteLine("4 - Asociar foto a repuesto");
                                     //CRF5 Asociar foto a repuesto.
                                     //El sistema debe permitir subir una foto y asociarla a un repuesto específico.
-                                    networkdatahelper.Send(cmd);
                                     string repuestosExistentesParaFoto = networkdatahelper.Receive();
                                     List<string> listaRepuestosExistentesParaFoto = repuestosExistentesParaFoto.Split(ProtocolSpecification.fieldsSeparator).ToList();
                                     if (string.Equals("", repuestosExistentesParaFoto))
@@ -254,7 +250,6 @@ namespace ClientApp
                                     // Console.WriteLine("5 - Consultar repuestos existentes");
                                     //CRF6 Consultar repuestos existentes.
                                     //El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
-                                    networkdatahelper.Send(cmd);
                                     Console.WriteLine("1 - Listar todos");
                                     Console.WriteLine("2 - Buscar por nombre repuesto");
                                     Console.WriteLine("3 - Buscar por nombre de la categoria");
@@ -320,8 +315,6 @@ namespace ClientApp
                                             }
 
                                         }
-
-                                        //cmd = Console.ReadLine();
                                         //salirCRF8 = true;
                                     }
                                     break;
