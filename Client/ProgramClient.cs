@@ -135,6 +135,12 @@ namespace ClientApp
                                     // Console.WriteLine("2 - Alta de Categoría de repuesto");
                                     //CRF3 Alta de Categoría de repuesto.
                                     //El sistema debe permitir crear una Categoría para los repuestos.
+                                    Console.WriteLine("Ingrese nombre de la nueva categoria: ");
+                                    string nombreCategoria = Console.ReadLine() ?? string.Empty;
+                                    networkdatahelper.Send(cmd);
+                                    networkdatahelper.Send(nombreCategoria);
+                                    string altaCateogriaResponse = networkdatahelper.Receive();
+                                    Console.WriteLine(altaCateogriaResponse);
                                     break;
                                 case "3":
                                     // Console.WriteLine("3 - Asociar Categorías a los repuestos");
