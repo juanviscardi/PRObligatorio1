@@ -42,7 +42,7 @@ namespace Common
 
         public string ToStringListar()
         {
-            return $"Id: {Id}, Name: {Name}, Proveedor: {Proveedor}, Marca: {Marca}, Foto: {Foto}, Categorias: {string.Join(", ", Categorias)}";
+            return $"Id: {Id}, Nombre: {Name}, Proveedor: {Proveedor}, Marca: {Marca}, Foto: {Foto}, Categorias: {string.Join(", ", Categorias)}";
         }
 
 
