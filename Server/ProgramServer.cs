@@ -288,16 +288,16 @@ namespace Server
 
                                         lock (_asociarCategoria)
                                         {
-                                            Repuesto repuesto4;
+                                            Repuesto repuesto4 = null;
                                                 repuestos.ToList().ForEach(x =>
                                                 {
                                                     if (string.Equals(repuestoName4, x.Name)) repuesto4 = x;
                                                 });
-                                            if (!repuestos.Contains(repuesto4))
+                                            if (repuesto4 != null && !repuestos.Contains(repuesto4))
                                             {
                                                 //Aca hay que hacer lock
 
-                                                repuestos.Add(repu);
+                                                repuestos.Add(repuesto4);
                                                 networkdatahelper.Send("exito");
                                             }
                                             else

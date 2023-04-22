@@ -214,8 +214,8 @@ namespace ClientApp
                                     bool salirCRF8 = false;
                                     while (!salirCRF8 && !salir)
                                     {
-                                        var message = Console.ReadLine();
-                                        if (string.IsNullOrEmpty(message) || message.Equals("exit", StringComparison.Ordinal))
+                                        var message1 = Console.ReadLine();
+                                        if (string.IsNullOrEmpty(message1) || message1.Equals("exit", StringComparison.Ordinal))
                                         {
                                             salirCRF8 = true;
                                         }
@@ -225,7 +225,7 @@ namespace ClientApp
                                             {
 
                                                 networkdatahelper.Send(cmd);
-                                                networkdatahelper.Send(message);
+                                                networkdatahelper.Send(message1);
                                             }
                                             catch (SocketException)
                                             {
