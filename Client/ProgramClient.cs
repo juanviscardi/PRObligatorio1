@@ -284,6 +284,56 @@ namespace ClientApp
                                     //CRF7 Consultar un repuesto específico.
                                     //El sistema deberá poder buscar un repuesto específico.
                                     //También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
+                                    string nombreRepuestosExistentes = networkdatahelper.Receive();
+                                    List<string> listaNombreRepuestosExistentes = nombreRepuestosExistentes.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    if (string.Equals("", listaNombreRepuestosExistentes))
+                                    {
+                                        Console.WriteLine("No hay ningun repuesto creado aun. ");
+                                        break;
+                                    }
+                                    Console.WriteLine("Repuestos: ");
+                                    for (int i = 0; i < listaNombreRepuestosExistentes.Count; i++)
+                                    {
+                                        string nombreRepuestoIterado = listaNombreRepuestosExistentes[i];
+                                        Console.WriteLine($"{i} - {nombreRepuestoIterado}");
+                                    }
+                                    Console.WriteLine("Ingrese el numero del repuesto para mas detalles: ");
+                                    string opcionDetalleSeleccionada = Console.ReadLine() ?? string.Empty;
+                                    int number;
+                                    bool isNumber = int.TryParse(opcionDetalleSeleccionada, out number);
+                                    if(!isNumber || listaNombreRepuestosExistentes.Count <= number || number < 0)
+                                    {
+                                        Console.WriteLine("La opcion ingresada no es valida");
+                                        networkdatahelper.Send("exit");
+                                        break;
+                                    }
+                                    networkdatahelper.Send(listaNombreRepuestosExistentes[int.Parse(opcionDetalleSeleccionada)]);
+                                    string detallesOError = networkdatahelper.Receive();
+                                    if (string.Equals(detallesOError, "El repuesto no existe."))
+                                    {
+                                        Console.WriteLine(detallesOError);
+                                        break;
+                                    }
+                                    List<string> responseRepuestoYFoto = detallesOError.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    string detalle = responseRepuestoYFoto[0];
+                                    bool tieneFoto = bool.Parse(responseRepuestoYFoto[1]);
+                                    Console.WriteLine(detalle);
+                                    if (!tieneFoto) break;
+                                    Console.WriteLine("Desea descargar la foto?");
+                                    Console.WriteLine("1 - Si");
+                                    Console.WriteLine("2 - No");
+                                    string opcionDetalleSeleccionadaFoto = Console.ReadLine() ?? string.Empty;
+                                    int numberFoto;
+                                    bool isNumberFoto = int.TryParse(opcionDetalleSeleccionadaFoto, out numberFoto);
+                                    if (!isNumberFoto || numberFoto > 1 || numberFoto <= 0)
+                                    {
+                                        networkdatahelper.Send("NO");
+                                        break;
+                                    }
+                                    networkdatahelper.Send("SI");
+                                    FileCommsHandler fileCommsHandler2 = new FileCommsHandler(socketClient);
+                                    string nombreArchivo = fileCommsHandler2.ReceiveFile();
+                                    Console.WriteLine("La imagen {0} fue descargada", nombreArchivo);
                                     break;
                                 case "7":
                                     // Console.WriteLine("7 - Enviar y recibir mensajes");

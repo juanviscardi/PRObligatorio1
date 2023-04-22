@@ -390,6 +390,35 @@ namespace Server
                                         break;
                                     case "6":
                                         // Console.WriteLine("6 - Consultar un repuesto específico");
+                                        List<string> nombreRepuestosExistentes = new List<string>();
+                                        repuestos.ToList().ForEach(x => {
+                                            nombreRepuestosExistentes.Add(x.Name);
+                                        });
+                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, nombreRepuestosExistentes));
+                                        string nombreRepuestoQuieroDetalles = networkdatahelper.Receive();
+                                        if(string.Equals(nombreRepuestoQuieroDetalles, "exit"))
+                                        {
+                                            break;
+                                        }
+                                        Repuesto repuesto6 = repuestos.Find(x => string.Equals(nombreRepuestoQuieroDetalles, x.Name));
+                                        if (repuesto6 != null)
+                                        {
+                                            bool tieneFoto = true;
+                                            if(string.IsNullOrEmpty(repuesto6.Foto))
+                                            {
+                                                tieneFoto = false;
+                                            }
+                                            string response = repuesto6.ToStringListar() + ProtocolSpecification.fieldsSeparator + tieneFoto;
+                                            networkdatahelper.Send(response);
+                                        }
+                                        else
+                                        {
+                                            networkdatahelper.Send("El repuesto no existe.");
+                                        }
+                                        string enviarFoto = networkdatahelper.Receive();
+                                        if (string.Equals(enviarFoto, "NO")) break;
+                                        FileCommsHandler fileCommsHandler2 = new FileCommsHandler(socketClient);
+                                        fileCommsHandler2.SendFile(repuesto6.Foto);
                                         break;
                                     case "7":
                                         // Console.WriteLine("7 - Enviar y recibir mensajes");
