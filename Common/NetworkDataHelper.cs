@@ -58,6 +58,14 @@ namespace Common
 
         }
 
+        public string Receive()
+        {
+            byte[] dataLength3 = this.Receive(ProtocolSpecification.fixedLength);
+            byte[] data3 = this.Receive(BitConverter.ToInt32(dataLength3));
+            return Encoding.UTF8.GetString(data3);
+
+        }
+
         public void Send(string data)
         {
             byte[] bytesData = Encoding.UTF8.GetBytes(data);  // Convierto de string a un array de bytes

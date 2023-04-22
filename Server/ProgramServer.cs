@@ -93,27 +93,14 @@ namespace Server
 
             while (clientIsConnected)
             {
-                // byte[] dataLength = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                // byte[] dataLength = networkdatahelper.Receive(largoDataLength);
-                // byte[] data = networkdatahelper.Receive(BitConverter.ToInt32(dataLength));
-                // string message = Encoding.UTF8.GetString(data);
-                // string[] messageConTodo = message.Split(ProtocolSpecification.fieldsSeparator);
-
-                //Console.WriteLine("Mensaje Recibido: {0}", message);
-                //string[] data8 = message.Split(ProtocolSpecification.fieldsSeparator);
-                // Feo pero funciona - Algo para saber quien soy
                 string algo = socketClient.RemoteEndPoint.ToString() ?? string.Empty;
-
                 string[] datos = algo.Split(":"); //IPAddress : Puerto
                 try
                 {
-                    // Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message, datos[0], datos[1]);
                     if (string.Equals(userType, "error"))
                 {
                         // log in
-                        byte[] lengthUsuarioContrasena = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                        byte[] dataUsuarioContrasena = networkdatahelper.Receive(BitConverter.ToInt32(lengthUsuarioContrasena));
-                        string messageUsuarioContrasena = Encoding.UTF8.GetString(dataUsuarioContrasena);
+                        string messageUsuarioContrasena = networkdatahelper.Receive();
                         string[] usuarioContrasena = messageUsuarioContrasena.Split(ProtocolSpecification.fieldsSeparator);
                         string usuario = usuarioContrasena[0];
                         string pass = usuarioContrasena[1];
@@ -150,9 +137,7 @@ namespace Server
                         }
                         continue;
                     }
-                    byte[] dataLength0 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                    byte[] data0 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength0));
-                    string cmd = Encoding.UTF8.GetString(data0);
+                    string cmd = networkdatahelper.Receive();
                     switch (userType)
                     {
                         case "admin":
@@ -168,13 +153,11 @@ namespace Server
                                         Console.WriteLine("Alta de usuario. Se debe poder dar de alta a un usuario (mecánico)."); 
                                         Console.WriteLine("Estafuncionalidad solo puede realizarse desde el usuario admin.");
                                         Console.WriteLine("Console.WriteLine(1 - Anadir usuario");
-                                        
-                                        byte[] dataLength1 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                        byte[] data1 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength1));
-                                        string message1 = Encoding.UTF8.GetString(data1);
-                                        string[] messageConTodo = message1.Split(ProtocolSpecification.fieldsSeparator);
-                                        var userName = messageConTodo[0];
-                                        var userPassword = messageConTodo[1];
+
+                                        string altaUsuarioRequest = networkdatahelper.Receive();
+                                        string[] altaUsuarioRequestConTodo = altaUsuarioRequest.Split(ProtocolSpecification.fieldsSeparator);
+                                        var userName = altaUsuarioRequestConTodo[0];
+                                        var userPassword = altaUsuarioRequestConTodo[1];
 
                                         Usuario user = new Usuario(
                                                            userName,
@@ -214,27 +197,20 @@ namespace Server
                                         Console.WriteLine("CRF2 Alta de repuesto.");
                                         Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
                                         Console.WriteLine("id, nombre, proveedor y marca .");
-                                        byte[] dataLength2 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                        byte[] data2 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength2));
-                                        string message2 = Encoding.UTF8.GetString(data2);
-                                        string[] messageConTodo = message2.Split(ProtocolSpecification.fieldsSeparator);
-                                        var repuestoName = messageConTodo[0];
-                                        var repuestoProveedor = messageConTodo[1];
-                                        var repuestoMarca = messageConTodo[2];
-
+                                        string altaRepuestoRequest = networkdatahelper.Receive();
+                                        string[] altaRepuestoRequestConTodo = altaRepuestoRequest.Split(ProtocolSpecification.fieldsSeparator);
+                                        var repuestoName = altaRepuestoRequestConTodo[0];
+                                        var repuestoProveedor = altaRepuestoRequestConTodo[1];
+                                        var repuestoMarca = altaRepuestoRequestConTodo[2];
                                         Repuesto repu = new Repuesto(
                                                            repuestos.Count().ToString(),
                                                            repuestoName,
                                                            repuestoProveedor,
-                                                           repuestoMarca); ;
-
-
+                                                           repuestoMarca);
                                         lock (_agregarRepuesto)
                                         {
                                             if (!repuestos.Contains(repu))
                                             {
-                                                //Aca hay que hacer lock
-
                                                 repuestos.Add(repu);
                                                 networkdatahelper.Send("exito");
                                             }
@@ -242,25 +218,17 @@ namespace Server
                                             {
                                                 networkdatahelper.Send("el repuesto ya existe");
                                             }
-
                                         }
                                         break; 
                        
 
                                     case "2":
                                         // Console.WriteLine("2 - Alta de Categoría de repuesto");
-
-                                        byte[] dataLength3 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                        byte[] data3 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength3));
-                                        string categoria = Encoding.UTF8.GetString(data3);
-                                      
-
+                                        string categoria = networkdatahelper.Receive();
                                         lock (_agregarCategoria)
                                         {
                                             if (!categorias.Contains(categoria))
                                             {
-                                                //Aca hay que hacer lock
-
                                                 categorias.Add(categoria);
                                                 networkdatahelper.Send("exito");
                                             }
@@ -274,18 +242,10 @@ namespace Server
                                         break;
                                     case "3":
                                         // Console.WriteLine("3 - Asociar Categorías a los repuestos");
-                                        
-                                        byte[] dataLength4 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                        byte[] data4 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength4));
-                                        string message4 = Encoding.UTF8.GetString(data4);
-                                        string[] messageConTodo4 = message4.Split(ProtocolSpecification.fieldsSeparator);
-                                        var repuestoName4 = messageConTodo4[0];
-                                        var categoria4 = messageConTodo4[1];
-                                       
-
-                                      
-
-
+                                        string asociarCategoriaRequest = networkdatahelper.Receive();
+                                        string[] asociarCategoriaRequestConTodo = asociarCategoriaRequest.Split(ProtocolSpecification.fieldsSeparator);
+                                        var repuestoName4 = asociarCategoriaRequestConTodo[0];
+                                        var categoria4 = asociarCategoriaRequestConTodo[1];
                                         lock (_asociarCategoria)
                                         {
                                             Repuesto repuesto4 = null;
@@ -295,8 +255,6 @@ namespace Server
                                                 });
                                             if (repuesto4 != null && !repuestos.Contains(repuesto4))
                                             {
-                                                //Aca hay que hacer lock
-
                                                 repuestos.Add(repuesto4);
                                                 networkdatahelper.Send("exito");
                                             }
@@ -304,14 +262,10 @@ namespace Server
                                             {
                                                 networkdatahelper.Send("el repuesto ya existe");
                                             }
-
                                         }
                                         break;
                                     case "4":
-                                        // Console.WriteLine("4 - Asociar foto a repuesto");
-                                        byte[] dataLength5 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                        byte[] data5 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength5));
-                                        string nombreRepuesto = Encoding.UTF8.GetString(data5);
+                                        string nombreRepuesto = networkdatahelper.Receive();
                                         FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
                                         string nombreArchivo = fileCommsHandler.ReceiveFile();
                                         // el archivo queda guardado en el bin
@@ -329,11 +283,9 @@ namespace Server
                                         break;
                                     case "7":
                                         // Console.WriteLine("7 - Enviar y recibir mensajes");
-                                        byte[] dataLength8 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                        byte[] data8 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength8));
-                                        string message8 = Encoding.UTF8.GetString(data8);
-                                        mensajes.Add(message8, datos);
-                                        Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", message8, datos[0], datos[1]);
+                                        string mensaje = networkdatahelper.Receive();
+                                        mensajes.Add(mensaje, datos);
+                                        Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", mensaje, datos[0], datos[1]);
                                         break;
                                     case "8":
                                         // Console.WriteLine("8 - Salir");
@@ -369,11 +321,11 @@ namespace Server
                 }
 
             }
+            Console.WriteLine(socketClient.RemoteEndPoint);
             socketClient.Shutdown(SocketShutdown.Both);
             socketClient.Close();
             socketClient.Dispose();
             Console.WriteLine("Client disconnected");
-            //Console.WriteLine(socketClient.RemoteEndPoint);
         }
     }
 }

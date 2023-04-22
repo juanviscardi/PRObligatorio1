@@ -56,10 +56,8 @@ namespace ClientApp
                     //Armo string que voy a mandar
                     string usernamePassword = username + ProtocolSpecification.fieldsSeparator + password;
                     networkdatahelper.Send(usernamePassword);
-                    byte[] dataLength0 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                    byte[] data0 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength0));
-                    string message0 = Encoding.UTF8.GetString(data0);
-                    userType = message0;
+                    string responseUsernamePassword = networkdatahelper.Receive();
+                    userType = responseUsernamePassword;
                     if (string.Equals(userType, "error"))
                     {
                         Console.WriteLine("El usuario o contrasena no es correcto");
@@ -87,26 +85,16 @@ namespace ClientApp
                                 case "1":
                                     //CRF1 Alta de usuario
                                     // Alta de usuario. Se debe poder dar de alta a un usuario (mecánico). 
-                                    // Estafuncionalidad solo puede realizarse desde el usuario admin.
-                                    // Console.WriteLine("1 - Anadir usuario");
+                                    // Esta funcionalidad solo puede realizarse desde el usuario admin.
                                     Console.WriteLine("Ingrese Usuario: ");
                                     string username = Console.ReadLine() ?? string.Empty;
                                     Console.WriteLine("Ingrese Contrasena: ");
                                     string password = Console.ReadLine() ?? string.Empty;
-                                    //Chequeo que no exista el usuarion que quiero crear
-                                    string message = username + ProtocolSpecification.fieldsSeparator + password;
+                                    string newUserRequest = username + ProtocolSpecification.fieldsSeparator + password;
                                     networkdatahelper.Send(cmd);
-                                    networkdatahelper.Send(message);
-
-                                    byte[] dataLength0 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                    byte[] data0 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength0));
-                                    string message0 = Encoding.UTF8.GetString(data0);
-
-                                    Console.WriteLine(message0);
-                                    //Creo el usuario
-
-                                    //Si existe vuelvo a pedir la data o doy opcion a salir
-
+                                    networkdatahelper.Send(newUserRequest);
+                                    string newUserResponse = networkdatahelper.Receive();
+                                    Console.WriteLine(newUserResponse);
                                     break;
                                
                                 case "2": 
@@ -140,15 +128,8 @@ namespace ClientApp
                                         marca;
                                     networkdatahelper.Send(cmd);
                                     networkdatahelper.Send(message);
-
-                                    byte[] dataLength0 = networkdatahelper.Receive(ProtocolSpecification.fixedLength);
-                                    byte[] data0 = networkdatahelper.Receive(BitConverter.ToInt32(dataLength0));
-                                    string message0 = Encoding.UTF8.GetString(data0);
-
-                                    Console.WriteLine(message0);
-
-
-
+                                    string altaRepuestoResponse = networkdatahelper.Receive();
+                                    Console.WriteLine(altaRepuestoResponse);
                                     break;
                                 case "2":
                                     // Console.WriteLine("2 - Alta de Categoría de repuesto");
