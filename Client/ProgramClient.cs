@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Net;
-using System.Text;
 using Common;
-using System.ComponentModel.Design;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Linq.Expressions;
 
 namespace ClientApp
 {
@@ -78,8 +70,6 @@ namespace ClientApp
                     CierraConexionCliente(socketClient);
                 }
             }
-
-            /******* DE ACA PARA ABAJO ES LO QUE HAY QUE ENAPSULAR   **************************************/
             bool salir = false;
             while (!salir)
             {
@@ -124,9 +114,9 @@ namespace ClientApp
                             switch (cmd)
                             {
                                 case "1":
-                                    Console.WriteLine("CRF2 Alta de repuesto.");
-                                    Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
-                                    Console.WriteLine("id, nombre, proveedor y marca.");
+                                    //Console.WriteLine("CRF2 Alta de repuesto.");
+                                    //Console.WriteLine("Se debe poder dar de alta a un repuesto en el sistema, incluyendo");
+                                    //Console.WriteLine("id, nombre, proveedor y marca.");
 
 
                                     Console.WriteLine("Ingrese nombre: ");
@@ -457,15 +447,6 @@ namespace ClientApp
                 string password3 = "passFede";
                 string tipo3 = "mecanico";
                 Usuario user3 = new Usuario(nombre3, password3, tipo3);
-
-                //creo repuestos
-                //    asosio categoria a repuestos
-                //    creoCategoria
-                //    asocio categoria a repuestos
-                //    asocio foto a repuesto
-                //    asocio mensajes del usuario A al usuario B
-
-
             }
         }
     }

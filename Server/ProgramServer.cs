@@ -1,25 +1,15 @@
 ﻿using Common;
-using System;
-using System.Configuration;
-using System.IO;
 using System.Net;
-using System.Net.Security;
 using System.Net.Sockets;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
 
 namespace Server
 {
     public class ProgramServer
     {
         static readonly SettingsManager settingsMng = new SettingsManager();
-        //static Dictionary<string, string> usuarios = new();
         static List<Usuario> usuarios = new();
-        // static Dictionary<string, string[]> mensajes = new();
         static List<Repuesto> repuestos = new();
         static List<string> categorias = new();
-
-        //Cambio DE LISTA MENSAJE??????
         static List<Mensaje> mensajes = new();
 
         private static readonly Object _agregarUsuario= new Object();
@@ -48,9 +38,10 @@ namespace Server
             // Asociamos el socket con el endpoint
             socketServer.Bind(localEndPoint);
 
-            socketServer.Listen(100); // Nuestro Socket pasa a estar en modo escucha,
-                                      // el 100 me dice que puedo manejar la espera de varios a la vez, es el backlog,
-                                      // la cola de conexiones que aceptara
+            // Nuestro Socket pasa a estar en modo escucha,
+            // el fixedBackpack me dice que puedo manejar la espera de varios a la vez, es el backlog,
+            // la cola de conexiones que aceptara
+            socketServer.Listen(ProtocolSpecification.FixedBackpack); 
 
             int clientes = 0;
             bool salir = false;
@@ -62,7 +53,7 @@ namespace Server
                 Socket socketClient = socketServer.Accept();
                 // El Accept es bloqueante
                 // Espera a que llegue una nueva conexion,
-                // por eso fue el 100 en el listen sino bloquea y no podra hacer nada mas.
+                // por eso fue el fixedBackpack en el listen sino bloquea y no podra hacer nada mas.
                 clientes++;
                 int nro = clientes;
 
@@ -74,7 +65,6 @@ namespace Server
 
                 string[] datos = algo.Split(ProtocolSpecification.valuesSeparator);
                 Console.WriteLine("Se conecto {0} en el puerto {1} \n", datos[0], datos[1]);
-                // ******* PONER UN MENSAJE Acorde
 
                 new Thread(() => HandleClient(socketClient)).Start();
                 // Lanzamos un nuevo hilo para manejar al nuevo cliente
@@ -96,8 +86,8 @@ namespace Server
             
             while (clientIsConnected)
             {
-                string algo = socketClient.RemoteEndPoint.ToString() ?? string.Empty;
-                string[] datos = algo.Split(":"); //IPAddress : Puerto
+                string ipAddressPuerto = socketClient.RemoteEndPoint.ToString() ?? string.Empty;
+                string[] datos = ipAddressPuerto.Split(":"); //IPAddress : Puerto
                 try
                 {
                     if (string.Equals(userType, "error"))
@@ -317,12 +307,10 @@ namespace Server
                                         // el archivo queda guardado en el bin
                                         repuesto5.Foto = nombreArchivo;
                                         networkdatahelper.Send("Se asocio la foto al repuesto.");
-                                        // falta revisar que el repuesto exista, y agregar el path al repuesto en el atributo foto, ver si queremos agregar mas de una foto o no
 
                                         break;
                                     case "5":
                                         // SRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes,incluyendo búsquedas por palabras claves.
-                                        
                                         // CRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
                                         
                                         string opcionListado = networkdatahelper.Receive();
@@ -515,22 +503,7 @@ namespace Server
                 }
                 catch (SocketException ex)
                 {
-                    //*************************************************
-                    // ******* PONER UN MENSAJE ACORDE
-                    // Usando el valor de ex tal vez
-
                     Console.WriteLine("ERROR:" + "Cliente desconectado de manera forzada \n" + socketClient.RemoteEndPoint + "\n");
-                    
-
-                          // Hay que pasar a false la propiedad del usuario que se desconecto
-
-                    // No se si esto vale!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    
-
-                    // ESTE ERROR ME LO COMO (NO LO MUESTRO)
-                    // O LO TIRO A UNA BASE DE EVENTOS/ERRORES
-                    // **********************************************
-
                     clientIsConnected = false;
                 }
 

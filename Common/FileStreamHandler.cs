@@ -1,6 +1,4 @@
-﻿using Common;
-
-namespace Common
+﻿namespace Common
 {
     public class FileStreamHandler
     {

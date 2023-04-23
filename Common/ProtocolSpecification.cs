@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Common
+﻿namespace Common
 {
     public static class ProtocolSpecification
     {
@@ -18,6 +16,8 @@ namespace Common
         //separador para usurio/password o para repuestos o algo mas
         public const string fieldsSeparator = ";";
         public const string valuesSeparator = ":";
+
+        public const int FixedBackpack = 100;
 
         public static long CalculateFileParts(long fileSize)
         {

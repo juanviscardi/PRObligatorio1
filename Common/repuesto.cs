@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Common
+﻿namespace Common
 {
     public class Repuesto
     {
@@ -16,13 +10,6 @@ namespace Common
         public string Marca { get; set; }
         public string Foto { get; set; }
         public List<string> Categorias { get; set; }
-
-
-        //public Repuesto()
-        //{
-        //    this.Categorias = new List<string>();
-        //    this.Id = "";
-        //}
 
         public Repuesto(string id, string name, string proveedor, string marca)
         {
