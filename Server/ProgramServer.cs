@@ -15,12 +15,12 @@ namespace Server
         static readonly SettingsManager settingsMng = new SettingsManager();
         //static Dictionary<string, string> usuarios = new();
         static List<Usuario> usuarios = new();
-        static Dictionary<string, string[]> mensajes = new();
+        // static Dictionary<string, string[]> mensajes = new();
         static List<Repuesto> repuestos = new();
         static List<string> categorias = new();
 
         //Cambio DE LISTA MENSAJE??????
-        static List<Mensaje> mensajes2 = new();
+        static List<Mensaje> mensajes = new();
 
         private static readonly Object _agregarUsuario= new Object();
         private static readonly Object _agregarRepuesto = new Object();
@@ -437,20 +437,72 @@ namespace Server
                                         fileCommsHandler2.SendFile(repuesto6.Foto);
                                         break;
                                     case "7":
-                                        
+
                                         //SRF8. Enviar y recibir mensajes entre mecánicos. El sistema debe permitir que un mecánico
                                         //envíe mensajes a otro, y que el mecánico receptor chequee sus mensajes sin leer, así como
                                         //también revisar su historial de mensajes.
 
+                                        // mandar todos los mecanicos
+                                        List<string> nombreMecanicos = new List<string>();
+                                        usuarios.ToList().ForEach(x => {
+                                            nombreMecanicos.Add(x.userName);
+                                        });
+                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, nombreMecanicos));
+                                        string requestEnviarMensaje = networkdatahelper.Receive();
+                                        // validar inputs
+                                        if (string.Equals(requestEnviarMensaje, "exit")) break;
+                                        Mensaje mensajeEnviado = new Mensaje(requestEnviarMensaje);
+                                        if(string.Equals(mensajeEnviado.remitente, mensajeEnviado.destinatario))
+                                        {
+                                            networkdatahelper.Send("No se puede enviar un mensaje a si mismo");
+                                            break;
+                                        }
+                                        Usuario usuarioDestintario = usuarios.Find(x => string.Equals(mensajeEnviado.destinatario, x.userName));
+                                        if (usuarioDestintario == null)
+                                        {
+                                            networkdatahelper.Send("El destinatario no es un mecanica valido.");
+                                            break;
+                                        }
+                                        if(string.IsNullOrEmpty(mensajeEnviado.cuerpoMensaje))
+                                        {
+                                            networkdatahelper.Send("El cuerpo del mensaje no puede estar vacio.");
+                                            break;
+                                        }
+                                        // enviar respuesta a imprimir en el cliente
+                                        mensajes.Add(mensajeEnviado);
+                                        mensajeEnviado.ImprimirServer();
+                                        networkdatahelper.Send("Mensaje enviado. ");
                                         // CRF8.Enviar y recibir mensajes. El sistema debe permitir que un mecánico envíe mensajes
                                         // a otro, y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
-                                        
-                                        string mensaje = networkdatahelper.Receive();
-                                        mensajes.Add(mensaje, datos);
-                                        Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", mensaje, datos[0], datos[1]);
+
                                         break;
                                     case "8":
-                                        // Console.WriteLine("8 - Salir");
+                                        // Console.WriteLine("8 - Leer Mensajes");
+
+                                        // receive opcion 1 para mensajes nuevo o 2 para todos, exit en otro caso
+                                        // devolver los mensajes pedidos y marcarlos como leido = true
+                                        string opcionElegidoLeer = networkdatahelper.Receive();
+                                        if(string.Equals(opcionElegidoLeer, "exit"))
+                                        {
+                                            break;
+                                        }
+                                        // Console.WriteLine("1 - Leer nuevos mensajes");
+                                        List<Mensaje> mensajesNuevos;
+                                        if (string.Equals(opcionElegidoLeer, "1"))
+                                        {
+                                            mensajesNuevos = mensajes.FindAll(x => string.Equals(x.destinatario, usernameConnected) && !x.visto);
+                                            networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, mensajesNuevos));
+                                        } else 
+                                        {
+                                            mensajesNuevos = mensajes.FindAll(x => string.Equals(x.destinatario, usernameConnected));
+                                            networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, mensajesNuevos));
+                                        }
+                                        mensajesNuevos.ForEach(x => x.visto = true);
+                                        Console.WriteLine("Mensajes enviados al cliente: ");
+                                        mensajesNuevos.ForEach(x => x.ImprimirServer());
+                                        break;
+                                    case "9":
+                                        // Console.WriteLine("9 - Salir");
                                         break;
                                 }
                                 break;

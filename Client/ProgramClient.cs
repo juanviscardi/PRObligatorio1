@@ -8,6 +8,7 @@ using Common;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Linq.Expressions;
 
 namespace ClientApp
 {
@@ -293,7 +294,7 @@ namespace ClientApp
                                     }
                                     break;
                                 case "6":
-                                    
+
                                     //CRF7 Consultar un repuesto específico.
                                     //El sistema deberá poder buscar un repuesto específico.
                                     //También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
@@ -354,52 +355,68 @@ namespace ClientApp
                                     //CRF8 Enviar y recibir mensajes.
                                     //El sistema debe permitir que un mecánico envíe mensajes a otro,
                                     //y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
-                                   
-                                    Console.WriteLine("Escriba un mensaje y presione enter para enviarlo, escriba exit para salir");
-                                    bool salirCRF8 = false;
-                                    bool mensajeVisto = false;
-                                    while (!salirCRF8 && !salir)
+
+                                    string nombresMecanicos = networkdatahelper.Receive();
+                                    List<string> listaNombresMecanicos = nombresMecanicos.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    if (listaNombresMecanicos.Count < 2)
                                     {
-
-                                        Console.WriteLine(userConnected + ": Solicita mandar mensaje");
-                                        Console.WriteLine("a quien le mando - destinatario"); 
-
-                                        Console.WriteLine("curpoMensaje - va a ser el read line");
-                                        
-                                        Console.WriteLine("Fecha: " + DateTime.Now);
-                                        Console.WriteLine("mensaje visto: "+mensajeVisto);
-
-                                        Console.WriteLine("Copio la logica de Asociar Categorías a los repuestos. CRF4");
-                                        Console.WriteLine("para elegie el destinatario");
-                                        Console.WriteLine();
-
-
-                                        var message1 = Console.ReadLine();
-                                        if (string.IsNullOrEmpty(message1) || message1.Equals("exit", StringComparison.Ordinal))
-                                        {
-                                            salirCRF8 = true;
-                                        }
-                                        else
-                                        {
-                                            try
-                                            {
-
-                                                networkdatahelper.Send(cmd);
-                                                networkdatahelper.Send(message1);
-                                            }
-                                            catch (SocketException)
-                                            {
-                                                Console.WriteLine("Perdi la conexion con el server");
-                                                salir = true;
-
-                                            }
-
-                                        }
-                                        //salirCRF8 = true;
+                                        Console.WriteLine("No hay ningun mecanico registrado aun. ");
+                                        networkdatahelper.Send("exit");
+                                        break;
                                     }
+                                    Console.WriteLine("Mecanicos: ");
+                                    for (int i = 0; i < listaNombresMecanicos.Count; i++)
+                                    {
+                                        if (string.Equals(listaNombresMecanicos[i],userConnected)) continue;
+                                        string nombreMecanicoIterado = listaNombresMecanicos[i];
+                                        Console.WriteLine($"- {nombreMecanicoIterado}");
+                                    }
+                                    Console.WriteLine("Ingrese nombre del mecanico a enviarle el mensaje: ");
+                                    string nombreMecanicoElegido = Console.ReadLine() ?? string.Empty;
+                                    Console.WriteLine("Ingrese mensaje a enviar: ");
+                                    string textoMensaje = Console.ReadLine() ?? string.Empty;
+                                    Mensaje nuevoMensaje = new Mensaje(userConnected, nombreMecanicoElegido, textoMensaje);
+                                    networkdatahelper.Send(nuevoMensaje.ToString());
+                                    string respuestaEnviarMensaje = networkdatahelper.Receive();
+                                    Console.WriteLine(respuestaEnviarMensaje);
                                     break;
                                 case "8":
-                                    // Console.WriteLine("8 - Salir");
+                                    // Console.WriteLine("8 - Recibir mensajes");
+                                    Console.WriteLine("Ingrese la opcion deseada: ");
+                                    Console.WriteLine("1 - Leer nuevos mensajes");
+                                    Console.WriteLine("2 - Ver historial mensajes");
+                                    string opcionLeer = Console.ReadLine() ?? string.Empty;
+                                    int numberOpcionLeer;
+                                    bool isNumberOpcionLeer = int.TryParse(opcionLeer, out numberOpcionLeer);
+                                    if (!isNumberOpcionLeer || 3 <= numberOpcionLeer || numberOpcionLeer <= 0)
+                                    {
+                                        Console.WriteLine("La opcion ingresada no es valida");
+                                        networkdatahelper.Send("exit");
+                                        break;
+                                    }
+                                    networkdatahelper.Send(opcionLeer);
+                                    string mensajesAImprimir = networkdatahelper.Receive();
+                                    if (string.Equals("", mensajesAImprimir))
+                                    {
+                                        Console.WriteLine(string.Equals(opcionLeer,"1") ? "No hay mensajes nuevos. " : "No hay mensajes en el historial");
+                                        break;
+                                    }
+                                    List<string> listaMensajesAImprimir = mensajesAImprimir.Split(ProtocolSpecification.fieldsSeparator).ToList();
+                                    for (int i = 0; i < listaMensajesAImprimir.Count/5; i++)
+                                    {
+                                        Mensaje mensajeIterado = new Mensaje(
+                                            listaMensajesAImprimir[i*5],
+                                            listaMensajesAImprimir[i*5 + 1],
+                                            listaMensajesAImprimir[i*5 + 2],
+                                            DateTime.Parse(listaMensajesAImprimir[i*5 + 3]),
+                                            bool.Parse(listaMensajesAImprimir[i*5 + 4])
+                                        );
+                                        mensajeIterado.ImprimirCliente();
+                                        Console.WriteLine($"-------------------------");
+                                    }
+                                    break;
+                                case "9":
+                                    // Console.WriteLine("9 - Salir");
                                     salir = true;
                                     break;
                             }

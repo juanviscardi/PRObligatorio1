@@ -32,8 +32,9 @@ namespace ClientApp
                         Console.WriteLine("4 - Asociar foto a repuesto");
                         Console.WriteLine("5 - Consultar repuestos existentes");
                         Console.WriteLine("6 - Consultar un repuesto específico");
-                        Console.WriteLine("7 - Enviar y recibir mensajes");
-                        Console.WriteLine("8 - Salir");
+                        Console.WriteLine("7 - Enviar mensaje");
+                        Console.WriteLine("8 - Leer mensajes");
+                        Console.WriteLine("9 - Salir");
                         Console.WriteLine();
                         break;
                     }
