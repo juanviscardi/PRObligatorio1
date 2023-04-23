@@ -9,13 +9,13 @@ namespace ClientApp
 {
     internal class ConsoleClientMenu
     {
-        public static void GetMenu(string userType)
+        public static void GetMenu(string userType, string userConnected)
         {
             switch(userType)
             {
                 case "admin":
                     {
-                        HeadMenuClient("ADMIN MAIN MENU", "");
+                        HeadMenuClient("ADMIN MAIN MENU", userConnected);
 
                         Console.WriteLine("1 - Anadir usuario");
                         Console.WriteLine("2 - Salir");
@@ -24,7 +24,7 @@ namespace ClientApp
                     }
                 case "mecanico":
                     {
-                        HeadMenuClient("Mecanico MAIN MENU", "");
+                        HeadMenuClient("Mecanico MAIN MENU", userConnected);
 
                         Console.WriteLine("1 - Alta de repuesto");
                         Console.WriteLine("2 - Alta de Categoría de repuesto");

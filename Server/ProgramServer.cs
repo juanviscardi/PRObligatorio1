@@ -1,9 +1,11 @@
 ﻿using Common;
+using System;
 using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 
 namespace Server
@@ -91,9 +93,7 @@ namespace Server
             string userType = "error";
             string usernameConnected = "";
             NetworkDataHelper networkdatahelper = new NetworkDataHelper(socketClient);
-            //const int largoDataLength = 4;  // Defino la constante del largo ******* HAY QUE DEFINIRLO MAS PROLLIJO EN OTRO LADO
-            // ******************************************************************************
-
+            
             while (clientIsConnected)
             {
                 string algo = socketClient.RemoteEndPoint.ToString() ?? string.Empty;
@@ -223,6 +223,8 @@ namespace Server
 
                                     case "2":
                                         // Console.WriteLine("2 - Alta de Categoría de repuesto");
+                                        // SRF3.Crear Categoría de repuesto. El sistema debe permitir crear una categoría para los repuestos.
+                                        // CRF3. Alta de Categoría de repuesto. El sistema debe permitir crear una Categoría para los repuestos.
                                         string categoria = networkdatahelper.Receive();
                                         lock (_agregarCategoria)
                                         {
@@ -240,6 +242,8 @@ namespace Server
 
                                         break;
                                     case "3":
+                                        //SRF4. Asociar Categorías a un repuesto. El sistema debe permitir asociar categorías a los repuestos.
+                                        //CRF4. Asociar Categorías a los repuestos. El sistema debe permitir asociar categorías a losrepuestos.
                                         // Console.WriteLine("3 - Asociar Categorías a los repuestos");
                                         // envio nombre de repuestos existentes para que se listen en el cliente
                                         List<string> repuestosExistentesNamesResponse = new List<string>();
@@ -285,6 +289,9 @@ namespace Server
                                         }
                                         break;
                                     case "4":
+                                        //SRF5 Asociar una foto al repuesto. El sistema debe permitir subir una foto y asociarla a un repuesto específico.
+                                        //CRF5. Asociar foto a repuesto. El sistema debe permitir subir una foto y asociarla a un repuesto específico.
+                                        
                                         List<string> repuestosExistentesParaFotoResponse = new List<string>();
                                         repuestos.ToList().ForEach(x => {
                                             repuestosExistentesParaFotoResponse.Add(x.Name);
@@ -314,7 +321,10 @@ namespace Server
 
                                         break;
                                     case "5":
-                                        // Console.WriteLine("5 - Consultar repuestos existentes");
+                                        // SRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes,incluyendo búsquedas por palabras claves.
+                                        
+                                        // CRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
+                                        
                                         string opcionListado = networkdatahelper.Receive();
                                         List<string> repuestosExistentesResponse = new List<string>();
                                         switch (opcionListado)
@@ -390,7 +400,12 @@ namespace Server
                                         }
                                         break;
                                     case "6":
-                                        // Console.WriteLine("6 - Consultar un repuesto específico");
+                                        // SRF7. Consultar un repuesto específico. El sistema deberá poder buscar un repuesto
+                                        // específico.También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
+                                        
+                                        // CRF7. Consultar un repuesto específico. El sistema deberá poder buscar un repuesto
+                                        // específico.También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
+
                                         List<string> nombreRepuestosExistentes = new List<string>();
                                         repuestos.ToList().ForEach(x => {
                                             nombreRepuestosExistentes.Add(x.Name);
@@ -422,7 +437,14 @@ namespace Server
                                         fileCommsHandler2.SendFile(repuesto6.Foto);
                                         break;
                                     case "7":
-                                        // Console.WriteLine("7 - Enviar y recibir mensajes");
+                                        
+                                        //SRF8. Enviar y recibir mensajes entre mecánicos. El sistema debe permitir que un mecánico
+                                        //envíe mensajes a otro, y que el mecánico receptor chequee sus mensajes sin leer, así como
+                                        //también revisar su historial de mensajes.
+
+                                        // CRF8.Enviar y recibir mensajes. El sistema debe permitir que un mecánico envíe mensajes
+                                        // a otro, y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
+                                        
                                         string mensaje = networkdatahelper.Receive();
                                         mensajes.Add(mensaje, datos);
                                         Console.WriteLine("Mensaje Recibido: {0} desde {1} en el puerto {2} \n", mensaje, datos[0], datos[1]);

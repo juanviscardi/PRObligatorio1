@@ -7,6 +7,7 @@ using System.Text;
 using Common;
 using System.ComponentModel.Design;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace ClientApp
 {
@@ -43,6 +44,8 @@ namespace ClientApp
             NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
             //Inicializo cmd en 0 que es la opcion de login en el servidor
             string userType = "error";
+            string userConnected = "nadie";
+
             //Mando la info al server
             while (string.Equals(userType, "error"))
             {
@@ -62,6 +65,7 @@ namespace ClientApp
                     {
                         Console.WriteLine("El usuario o contrasena no es correcto");
                     }
+                    userConnected = username;
                 }
                 catch (SocketException)
                 {
@@ -74,7 +78,7 @@ namespace ClientApp
             bool salir = false;
             while (!salir)
             {
-                ConsoleClientMenu.GetMenu(userType);
+                ConsoleClientMenu.GetMenu(userType, userConnected);
                 string cmd = Console.ReadLine() ?? string.Empty;
                 networkdatahelper.Send(cmd);
                 switch (userType)
@@ -285,10 +289,11 @@ namespace ClientApp
                                     }
                                     break;
                                 case "6":
-                                    // Console.WriteLine("6 - Consultar un repuesto específico");
+                                    
                                     //CRF7 Consultar un repuesto específico.
                                     //El sistema deberá poder buscar un repuesto específico.
                                     //También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
+
                                     string nombreRepuestosExistentes = networkdatahelper.Receive();
                                     List<string> listaNombreRepuestosExistentes = nombreRepuestosExistentes.Split(ProtocolSpecification.fieldsSeparator).ToList();
                                     if (string.Equals("", listaNombreRepuestosExistentes))
@@ -345,10 +350,25 @@ namespace ClientApp
                                     //CRF8 Enviar y recibir mensajes.
                                     //El sistema debe permitir que un mecánico envíe mensajes a otro,
                                     //y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
+                                   
                                     Console.WriteLine("Escriba un mensaje y presione enter para enviarlo, escriba exit para salir");
                                     bool salirCRF8 = false;
+                                    bool mensajeVisto = false;
                                     while (!salirCRF8 && !salir)
                                     {
+
+                                        Console.WriteLine(userConnected + ": Solicita mandar mensaje");
+                                        Console.WriteLine("a quien le mando - destinatario"); 
+                                        Console.WriteLine("curpoMensaje - va a ser el read line");
+                                        
+                                        Console.WriteLine("Fecha: " + DateTime.Now);
+                                        Console.WriteLine("mensaje visto: "+mensajeVisto);
+
+                                        Console.WriteLine("Copio la logica de Asociar Categorías a los repuestos. CRF4");
+                                        Console.WriteLine("para elegie el destinatario");
+                                        Console.WriteLine();
+
+
                                         var message1 = Console.ReadLine();
                                         if (string.IsNullOrEmpty(message1) || message1.Equals("exit", StringComparison.Ordinal))
                                         {
