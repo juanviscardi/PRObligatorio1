@@ -65,7 +65,11 @@ namespace ClientApp
                     {
                         Console.WriteLine("El usuario o contrasena no es correcto");
                     }
-                    userConnected = username;
+                    else
+                    {
+                        userConnected = username;
+                    }
+                    
                 }
                 catch (SocketException)
                 {
@@ -359,6 +363,7 @@ namespace ClientApp
 
                                         Console.WriteLine(userConnected + ": Solicita mandar mensaje");
                                         Console.WriteLine("a quien le mando - destinatario"); 
+
                                         Console.WriteLine("curpoMensaje - va a ser el read line");
                                         
                                         Console.WriteLine("Fecha: " + DateTime.Now);

@@ -81,9 +81,9 @@ namespace Server
 
             }
             // Cierro el socket
-            socketServer.Shutdown(SocketShutdown.Both);
-            socketServer.Close();
-            socketServer.Dispose();
+            //socketServer.Shutdown(SocketShutdown.Both);
+            //socketServer.Close();
+            //socketServer.Dispose();
         }
 
         static void HandleClient(Socket socketClient)
