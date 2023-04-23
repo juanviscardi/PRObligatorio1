@@ -66,7 +66,7 @@ namespace ClientApp
                 catch (SocketException)
                 {
                     Console.WriteLine("Perdi la conexion con el server");
-
+                    CierraConexionCliente(socketClient);
                 }
             }
 
@@ -96,10 +96,15 @@ namespace ClientApp
                                     string newUserResponse = networkdatahelper.Receive();
                                     Console.WriteLine(newUserResponse);
                                     break;
-                               
-                                case "2": 
+
+                                case "2":
                                     // Console.WriteLine("3 - Cerrar Sesion");
                                     salir = true;
+                                    break;
+
+                                case "345":
+                                    //Load data
+                                    loadData();
                                     break;
                             }
                             break;
@@ -123,8 +128,8 @@ namespace ClientApp
                                     string marca = Console.ReadLine() ?? string.Empty;
 
                                     //Chequeo que no exista el usuarion que quiero crear
-                                    string message = nombre + ProtocolSpecification.fieldsSeparator + 
-                                        proveedor + ProtocolSpecification.fieldsSeparator + 
+                                    string message = nombre + ProtocolSpecification.fieldsSeparator +
+                                        proveedor + ProtocolSpecification.fieldsSeparator +
                                         marca;
                                     networkdatahelper.Send(message);
                                     string altaRepuestoResponse = networkdatahelper.Receive();
@@ -147,7 +152,7 @@ namespace ClientApp
                                     string nombresRepuestos = networkdatahelper.Receive();
                                     string nombresCategorias = networkdatahelper.Receive();
                                     List<string> listaNombresRepuestos = nombresRepuestos.Split(ProtocolSpecification.fieldsSeparator).ToList();
-                                    if(string.Equals("", nombresRepuestos))
+                                    if (string.Equals("", nombresRepuestos))
                                     {
                                         Console.WriteLine("No hay ningun repuesto creado aun. ");
                                         networkdatahelper.Send("exit");
@@ -235,7 +240,7 @@ namespace ClientApp
                                     string nombreRepuesto = Console.ReadLine() ?? string.Empty;
                                     networkdatahelper.Send(nombreRepuesto);
                                     string responseNombreRepuesto = networkdatahelper.Receive();
-                                    if(string.Equals(responseNombreRepuesto, "El repuesto no existe."))
+                                    if (string.Equals(responseNombreRepuesto, "El repuesto no existe."))
                                     {
                                         Console.WriteLine(responseNombreRepuesto);
                                         break;
@@ -259,7 +264,7 @@ namespace ClientApp
                                     Console.WriteLine("Ingrese el numero de la opcion deseada");
                                     string opcionListado = Console.ReadLine() ?? string.Empty;
                                     networkdatahelper.Send(opcionListado);
-                                    if(opcionListado != "1")
+                                    if (opcionListado != "1")
                                     {
                                         Console.WriteLine("Escribir el nombre: ");
                                         string nombreABuscar = Console.ReadLine() ?? string.Empty;
@@ -301,7 +306,7 @@ namespace ClientApp
                                     string opcionDetalleSeleccionada = Console.ReadLine() ?? string.Empty;
                                     int number;
                                     bool isNumber = int.TryParse(opcionDetalleSeleccionada, out number);
-                                    if(!isNumber || listaNombreRepuestosExistentes.Count <= number || number < 0)
+                                    if (!isNumber || listaNombreRepuestosExistentes.Count <= number || number < 0)
                                     {
                                         Console.WriteLine("La opcion ingresada no es valida");
                                         networkdatahelper.Send("exit");
@@ -382,9 +387,44 @@ namespace ClientApp
                 }
             }
             Console.WriteLine("Se Cerrara la Conexion....");
-            socketClient.Shutdown(SocketShutdown.Both); // Desconecto ambos sentidos de la connecion
-            socketClient.Close();
-            socketClient.Dispose();
+            CierraConexionCliente(socketClient);
+
+            static void CierraConexionCliente(Socket socketClient)
+            {
+                socketClient.Shutdown(SocketShutdown.Both); // Desconecto ambos sentidos de la connecion
+                socketClient.Close();
+                socketClient.Dispose();
+            }
+
+            static void loadData()
+            {
+                Console.WriteLine("cargando data...");
+                Console.WriteLine();
+                // creo usuarios
+                string nombre = "Juan";
+                string password = "passJuan";
+                string tipo = "mecanico";
+                Usuario user = new Usuario(nombre, password, tipo);
+
+                string nombre2 = "Fabio";
+                string password2 = "passFabio";
+                string tipo2 = "mecanico";
+                Usuario user2 = new Usuario(nombre2, password2, tipo2);
+
+                string nombre3 = "Federico";
+                string password3 = "passFede";
+                string tipo3 = "mecanico";
+                Usuario user3 = new Usuario(nombre3, password3, tipo3);
+
+                //creo repuestos
+                //    asosio categoria a repuestos
+                //    creoCategoria
+                //    asocio categoria a repuestos
+                //    asocio foto a repuesto
+                //    asocio mensajes del usuario A al usuario B
+
+
+            }
         }
     }
 }

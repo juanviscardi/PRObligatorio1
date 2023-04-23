@@ -17,6 +17,9 @@ namespace Server
         static List<Repuesto> repuestos = new();
         static List<string> categorias = new();
 
+        //Cambio DE LISTA MENSAJE??????
+        static List<Mensaje> mensajes2 = new();
+
         private static readonly Object _agregarUsuario= new Object();
         private static readonly Object _agregarRepuesto = new Object();
         private static readonly Object _agregarCategoria = new Object();
@@ -126,7 +129,7 @@ namespace Server
                             if (existeYEsValido)
                             {
                                 userType = "mecanico";
-                                Console.WriteLine("Usuario: {0} hizo login con Mecanico", usuario);
+                                Console.WriteLine("Usuario: {0} hizo login como Mecanico", usuario);
                                 networkdatahelper.Send("mecanico");
                             }
                             else
@@ -148,11 +151,6 @@ namespace Server
                                         //CRF1 Alta de usuario
                                         // Alta de usuario. Se debe poder dar de alta a un usuario (mecánico). 
                                         // Esta funcionalidad solo puede realizarse desde el usuario administrador.
-                                        // Console.WriteLine("1 - Anadir usuario");
-
-                                        Console.WriteLine("Alta de usuario. Se debe poder dar de alta a un usuario (mecánico)."); 
-                                        Console.WriteLine("Esta funcionalidad solo puede realizarse desde el usuario administrador.");
-                                        Console.WriteLine("Console.WriteLine(1 - Anadir usuario");
 
                                         string altaUsuarioRequest = networkdatahelper.Receive();
                                         string[] altaUsuarioRequestConTodo = altaUsuarioRequest.Split(ProtocolSpecification.fieldsSeparator);
@@ -171,6 +169,9 @@ namespace Server
                                             {
                                                 usuarios.Add(user);
                                                 networkdatahelper.Send("exito");
+                                                Console.WriteLine("Se Creo un nuevo usuario");
+                                                Console.WriteLine(user.ToString());
+                                                Console.WriteLine();
                                             }
                                             else 
                                             {
@@ -180,8 +181,8 @@ namespace Server
                                         }
                                         break;
                                     case "2":
-                                        // Console.WriteLine("2 - Configuracion");
-                                        clientIsConnected = true;
+                                        // Salir;
+                                        clientIsConnected = false;
                                         break;
                                 }
                                 break;
