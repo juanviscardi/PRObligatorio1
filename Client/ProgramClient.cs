@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using Common;
+using System.Text;
 
 namespace ClientApp
 {
@@ -10,8 +11,7 @@ namespace ClientApp
 
         public static void Main(string[] args)
         {
-            // Levanto IP y puertos de archivo
-
+ 
             //Sustituyo ip y port por los valores del archivo
             string serverIp = settingsMng.ReadSettings(ClientConfig.serverIPConfigKey);
             string clientIp = settingsMng.ReadSettings(ClientConfig.ClientIPConfigKey);
@@ -21,23 +21,24 @@ namespace ClientApp
             //endPoint hacia server
             var remoteEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
 
-            //socket y EndPint Ciente
-            Console.WriteLine("Iniciando Aplicacion de Cliente...!");
-            var socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //endPoint haciua el cliente
             var localEndPoint = new IPEndPoint(IPAddress.Parse(clientIp), clientPort);
 
-            socketClient.Bind(localEndPoint);
-            Console.WriteLine("Iniciando Cliente");
-            Console.WriteLine("Conectandose.......");
+            var tcpClient = new TcpClient(localEndPoint);
 
-            // Si las credenciales no correctas me conecto al server sino que siga tratando
-            socketClient.Connect(remoteEndPoint); // Me conecto al servidor
-            Console.WriteLine("Conectado al Servidor!!!!");
+            Console.WriteLine("Iniciando Aplicacion de Cliente...!");
 
-            NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
+            Console.WriteLine("Iniciando Cliente, Conectandose.......");
+
+            tcpClient.Connect(remoteEndPoint);
+            //NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
+            NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(tcpClient);
+            
             //Inicializo cmd en 0 que es la opcion de login en el servidor
             string userType = "error";
             string userConnected = "nadie";
+            // Si las credenciales son correctas me conecto al server sino que siga tratando
+            Console.WriteLine("Conectado al Servidor!!!!");
 
             //Mando la info al server
             while (string.Equals(userType, "error"))
@@ -51,9 +52,19 @@ namespace ClientApp
                     string password = Console.ReadLine() ?? string.Empty;
                     //Armo string que voy a mandar
                     string usernamePassword = username + ProtocolSpecification.fieldsSeparator + password;
-                    networkdatahelper.Send(usernamePassword);
-                    string responseUsernamePassword = networkdatahelper.Receive();
-                    userType = responseUsernamePassword;
+
+                    // Convierto de string a un array de bytes
+                    byte[] dataUsernamePassword = Encoding.UTF8.GetBytes(usernamePassword);
+                    int datalength = dataUsernamePassword.Length;
+                    byte[] dataLength = BitConverter.GetBytes(datalength);
+                    networkdatahelper.Send(dataUsernamePassword);
+                    //string responseUsernamePassword = networkdatahelper.Receive();
+                    networkdatahelper.Receive(datalength);// (datalength);
+
+
+                    //userType = responseUsernamePassword;
+                    userType = "error";
+
                     if (string.Equals(userType, "error"))
                     {
                         Console.WriteLine("El usuario o contrasena no es correcto");
@@ -67,7 +78,9 @@ namespace ClientApp
                 catch (SocketException)
                 {
                     Console.WriteLine("Perdi la conexion con el server");
-                    CierraConexionCliente(socketClient);
+                    //CierraConexionCliente(socketClient)
+                    tcpClient.Close();
+
                 }
             }
             bool salir = false;
@@ -186,7 +199,7 @@ namespace ClientApp
                                     string asociarCateogoriaResponse = networkdatahelper.Receive();
                                     Console.WriteLine(asociarCateogoriaResponse);
                                     break;
-                                case "4":
+                               /* case "4":
                                     // Console.WriteLine("4 - Asociar foto a repuesto");
                                     //CRF5 Asociar foto a repuesto.
                                     //El sistema debe permitir subir una foto y asociarla a un repuesto específico.
@@ -245,11 +258,11 @@ namespace ClientApp
                                         break;
                                     }
                                     // me fijo si existia el repuesto
-                                    FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
+                                    FileCommsHandler fileCommsHandler = new FileCommsHandler(tcpClient);
                                     fileCommsHandler.SendFile(path);
                                     string responseFotoAsociada = networkdatahelper.Receive();
                                     Console.WriteLine(responseFotoAsociada);
-                                    break;
+                                    break;*/
                                 case "5":
                                     // Console.WriteLine("5 - Consultar repuestos existentes");
                                     //CRF6 Consultar repuestos existentes.
@@ -283,7 +296,7 @@ namespace ClientApp
                                         Console.WriteLine(nombreCategoriaIterado);
                                     }
                                     break;
-                                case "6":
+                                /*case "6":
 
                                     //CRF7 Consultar un repuesto específico.
                                     //El sistema deberá poder buscar un repuesto específico.
@@ -336,10 +349,10 @@ namespace ClientApp
                                         break;
                                     }
                                     networkdatahelper.Send("SI");
-                                    FileCommsHandler fileCommsHandler2 = new FileCommsHandler(socketClient);
+                                    FileCommsHandler fileCommsHandler2 = new FileCommsHandler(tcpClient);
                                     string nombreArchivo = fileCommsHandler2.ReceiveFile();
                                     Console.WriteLine("La imagen {0} fue descargada", nombreArchivo);
-                                    break;
+                                    break;*/
                                 case "7":
                                     // Console.WriteLine("7 - Enviar y recibir mensajes");
                                     //CRF8 Enviar y recibir mensajes.
@@ -419,14 +432,14 @@ namespace ClientApp
                 }
             }
             Console.WriteLine("Se Cerrara la Conexion....");
-            CierraConexionCliente(socketClient);
+            //CierraConexionCliente(tcpClient);
 
-            static void CierraConexionCliente(Socket socketClient)
+            /*static void CierraConexionCliente(Socket socketClient)
             {
                 socketClient.Shutdown(SocketShutdown.Both); // Desconecto ambos sentidos de la connecion
                 socketClient.Close();
                 socketClient.Dispose();
-            }
+            }*/
 
             static void loadData()
             {

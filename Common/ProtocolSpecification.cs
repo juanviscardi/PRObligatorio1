@@ -3,8 +3,8 @@
     public static class ProtocolSpecification
     {
         //Protocolo para comandos
-        public const int fixedHeaderSize = 3;
-        public const int fixedCmdSize = 4;
+        //public const int fixedHeaderSize = 3;
+        //public const int fixedCmdSize = 4;
         public const int fixedLength = 4;
         public const int fixedSize = 8;
 

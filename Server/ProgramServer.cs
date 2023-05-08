@@ -17,77 +17,52 @@ namespace Server
         private static readonly Object _agregarCategoria = new Object();
         private static readonly Object _asociarCategoria = new Object();
 
-        public static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Iniciando Aplicacion de Servidor.....!!!");
-
-            var socketServer = new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Stream,
-                ProtocolType.Tcp);
 
             //Sustituimos ip y port por los valores del archivo
             string serverIp = settingsMng.ReadSettings(ServerConfig.serverIPConfigKey);
             int serverPort = int.Parse(settingsMng.ReadSettings(ServerConfig.serverPortconfigKey));
 
-            //var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverPort);
             var localEndPoint = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
-
+            var tcpListener = new TcpListener(localEndPoint);
             Console.WriteLine("Servidor inicializado con IP {0} y Puerto {1}", serverIp, serverPort);
 
-            // Asociamos el socket con el endpoint
-            socketServer.Bind(localEndPoint);
-
-            // Nuestro Socket pasa a estar en modo escucha,
-            // el fixedBackpack me dice que puedo manejar la espera de varios a la vez, es el backlog,
-            // la cola de conexiones que aceptara
-            socketServer.Listen(ProtocolSpecification.FixedBackpack); 
+            tcpListener.Start(ProtocolSpecification.FixedBackpack); //Cantidad maxima de clientes que puedo encolar sin atender
 
             int clientes = 0;
             bool salir = false;
 
-            Console.WriteLine("Esperando por Clientes.....\n");
+            Console.WriteLine("Esperando por Clientes.....");
 
             while (!salir)
             {
-                Socket socketClient = socketServer.Accept();
-                // El Accept es bloqueante
-                // Espera a que llegue una nueva conexion,
-                // por eso fue el fixedBackpack en el listen sino bloquea y no podra hacer nada mas.
                 clientes++;
                 int nro = clientes;
 
-                Console.WriteLine("Acepte un nuevo pedido de conexion");
+                // Espera a que llegue una nueva conexion
+                // Console.WriteLine("Acepte un nuevo pedido de conexion");
 
-                //Feo pero funciona - Algo para saber quien soy
-                string algo = socketClient.RemoteEndPoint.ToString()
-                                  ?? string.Empty;
-
-                string[] datos = algo.Split(ProtocolSpecification.valuesSeparator);
-                Console.WriteLine("Se conecto {0} en el puerto {1} \n", datos[0], datos[1]);
-
-                new Thread(() => HandleClient(socketClient)).Start();
-                // Lanzamos un nuevo hilo para manejar al nuevo cliente
-
+                var tcpClientSocket = await tcpListener.AcceptTcpClientAsync().ConfigureAwait(false);
+                await Task.Run(async () => await HandleClient(tcpClientSocket).ConfigureAwait(false)); // Pedir un "hilo" del CLR prestado
             }
-            // Cierro el socket
-            //socketServer.Shutdown(SocketShutdown.Both);
-            //socketServer.Close();
-            //socketServer.Dispose();
-        }
 
-        static void HandleClient(Socket socketClient)
+         }
+
+     private static async Task HandleClient(TcpClient tcpClientSocket)
         {
 
             bool clientIsConnected = true;
             string userType = "error";
             string usernameConnected = "";
-            NetworkDataHelper networkdatahelper = new NetworkDataHelper(socketClient);
-            
+            NetworkDataHelper networkdatahelper = new NetworkDataHelper(tcpClientSocket);
+
             while (clientIsConnected)
             {
-                string ipAddressPuerto = socketClient.RemoteEndPoint.ToString() ?? string.Empty;
-                string[] datos = ipAddressPuerto.Split(":"); //IPAddress : Puerto
+                string[] ipAddressPuerto = tcpClientSocket.Client.LocalEndPoint.ToString().Split(":");
+                Console.WriteLine("Tratando de Conectar desde IP: {0} usando el puerto: {1}",ipAddressPuerto[0],ipAddressPuerto[1]);
+
                 try
                 {
                     if (string.Equals(userType, "error"))
@@ -278,7 +253,7 @@ namespace Server
                                             }
                                         }
                                         break;
-                                    case "4":
+                                    /*case "4":
                                         //SRF5 Asociar una foto al repuesto. El sistema debe permitir subir una foto y asociarla a un repuesto específico.
                                         //CRF5. Asociar foto a repuesto. El sistema debe permitir subir una foto y asociarla a un repuesto específico.
                                         
@@ -302,13 +277,13 @@ namespace Server
                                             networkdatahelper.Send("El repuesto no existe.");
                                             break;
                                         }
-                                        FileCommsHandler fileCommsHandler = new FileCommsHandler(socketClient);
+                                        FileCommsHandler fileCommsHandler = new FileCommsHandler(tcpClient);
                                         string nombreArchivo = fileCommsHandler.ReceiveFile();
                                         // el archivo queda guardado en el bin
                                         repuesto5.Foto = nombreArchivo;
                                         networkdatahelper.Send("Se asocio la foto al repuesto.");
 
-                                        break;
+                                        break;*/
                                     case "5":
                                         // SRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes,incluyendo búsquedas por palabras claves.
                                         // CRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
@@ -387,7 +362,7 @@ namespace Server
                                                 break;
                                         }
                                         break;
-                                    case "6":
+                                    /*case "6":
                                         // SRF7. Consultar un repuesto específico. El sistema deberá poder buscar un repuesto
                                         // específico.También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
                                         
@@ -423,7 +398,7 @@ namespace Server
                                         if (string.Equals(enviarFoto, "NO")) break;
                                         FileCommsHandler fileCommsHandler2 = new FileCommsHandler(socketClient);
                                         fileCommsHandler2.SendFile(repuesto6.Foto);
-                                        break;
+                                        break;*/
                                     case "7":
 
                                         //SRF8. Enviar y recibir mensajes entre mecánicos. El sistema debe permitir que un mecánico
@@ -503,16 +478,18 @@ namespace Server
                 }
                 catch (SocketException ex)
                 {
-                    Console.WriteLine("ERROR:" + "Cliente desconectado de manera forzada \n" + socketClient.RemoteEndPoint + "\n");
+                   // Console.WriteLine("ERROR:" + "Cliente desconectado de manera forzada \n" + socketClient.RemoteEndPoint + "\n");
                     clientIsConnected = false;
                 }
 
             }
-            Console.WriteLine(socketClient.RemoteEndPoint);
+            /*Console.WriteLine(socketClient.RemoteEndPoint);
             socketClient.Shutdown(SocketShutdown.Both);
             socketClient.Close();
-            socketClient.Dispose();
+            socketClient.Dispose();*/
+            tcpClientSocket.Close();
             Console.WriteLine("Cliente desconectado");
+
         }
     }
 }
