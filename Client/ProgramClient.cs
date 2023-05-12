@@ -9,7 +9,8 @@ namespace ClientApp
     {
         static readonly SettingsManager settingsMng = new SettingsManager();
 
-        public static void Main(string[] args)
+        //public static void Main(string[] args)
+        static async Task Main(string[] args)
         {
  
             //Sustituyo ip y port por los valores del archivo
@@ -28,9 +29,12 @@ namespace ClientApp
 
             Console.WriteLine("Iniciando Aplicacion de Cliente...!");
 
-            Console.WriteLine("Iniciando Cliente, Conectandose.......");
+            //Console.WriteLine("Iniciando Cliente, Conectandose.......");
 
-            tcpClient.Connect(remoteEndPoint);
+            //tcpClient.Connect(remoteEndPoint);
+
+            await tcpClient.ConnectAsync(remoteEndPoint);
+
             //NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(socketClient);
             NetworkDataHelper networkdatahelper = new Common.NetworkDataHelper(tcpClient);
             
@@ -54,16 +58,18 @@ namespace ClientApp
                     string usernamePassword = username + ProtocolSpecification.fieldsSeparator + password;
 
                     // Convierto de string a un array de bytes
+                    /*
                     byte[] dataUsernamePassword = Encoding.UTF8.GetBytes(usernamePassword);
                     int datalength = dataUsernamePassword.Length;
                     byte[] dataLength = BitConverter.GetBytes(datalength);
-                    networkdatahelper.Send(dataUsernamePassword);
-                    //string responseUsernamePassword = networkdatahelper.Receive();
-                    networkdatahelper.Receive(datalength);// (datalength);
+                    */
+                    await networkdatahelper.Send(usernamePassword);
+                    userType = await networkdatahelper.Receive();
+                    //await networkdatahelper.Receive(datalength);// (datalength);
 
 
                     //userType = responseUsernamePassword;
-                    userType = "error";
+                    //userType = "error";
 
                     if (string.Equals(userType, "error"))
                     {
@@ -75,10 +81,9 @@ namespace ClientApp
                     }
                     
                 }
-                catch (SocketException)
+                catch (Exception ex)
                 {
                     Console.WriteLine("Perdi la conexion con el server");
-                    //CierraConexionCliente(socketClient)
                     tcpClient.Close();
 
                 }
@@ -88,7 +93,7 @@ namespace ClientApp
             {
                 ConsoleClientMenu.GetMenu(userType, userConnected);
                 string cmd = Console.ReadLine() ?? string.Empty;
-                networkdatahelper.Send(cmd);
+                await networkdatahelper.Send(cmd);
                 switch (userType)
                 {
                     case "admin":
@@ -104,8 +109,8 @@ namespace ClientApp
                                     Console.WriteLine("Ingrese Contrasena: ");
                                     string password = Console.ReadLine() ?? string.Empty;
                                     string newUserRequest = username + ProtocolSpecification.fieldsSeparator + password;
-                                    networkdatahelper.Send(newUserRequest);
-                                    string newUserResponse = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(newUserRequest);
+                                    string newUserResponse = await networkdatahelper.Receive();
                                     Console.WriteLine(newUserResponse);
                                     break;
 
@@ -114,10 +119,7 @@ namespace ClientApp
                                     salir = true;
                                     break;
 
-                                case "345":
-                                    //Load data
-                                    loadData();
-                                    break;
+                                
                             }
                             break;
                         }
@@ -143,8 +145,8 @@ namespace ClientApp
                                     string message = nombre + ProtocolSpecification.fieldsSeparator +
                                         proveedor + ProtocolSpecification.fieldsSeparator +
                                         marca;
-                                    networkdatahelper.Send(message);
-                                    string altaRepuestoResponse = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(message);
+                                    string altaRepuestoResponse = await networkdatahelper.Receive();
                                     Console.WriteLine(altaRepuestoResponse);
                                     break;
                                 case "2":
@@ -153,27 +155,27 @@ namespace ClientApp
                                     //El sistema debe permitir crear una Categoría para los repuestos.
                                     Console.WriteLine("Ingrese nombre de la nueva categoria: ");
                                     string nombreCategoria = Console.ReadLine() ?? string.Empty;
-                                    networkdatahelper.Send(nombreCategoria);
-                                    string altaCateogriaResponse = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(nombreCategoria);
+                                    string altaCateogriaResponse = await networkdatahelper.Receive();
                                     Console.WriteLine(altaCateogriaResponse);
                                     break;
                                 case "3":
                                     // Console.WriteLine("3 - Asociar Categorías a los repuestos");
                                     // CRF4 Asociar Categorías a los repuestos.
                                     // El sistema debe permitir asociar categorías a los repuestos.
-                                    string nombresRepuestos = networkdatahelper.Receive();
-                                    string nombresCategorias = networkdatahelper.Receive();
+                                    string nombresRepuestos = await networkdatahelper.Receive();
+                                    string nombresCategorias = await networkdatahelper.Receive();
                                     List<string> listaNombresRepuestos = nombresRepuestos.Split(ProtocolSpecification.fieldsSeparator).ToList();
                                     if (string.Equals("", nombresRepuestos))
                                     {
                                         Console.WriteLine("No hay ningun repuesto creado aun. ");
-                                        networkdatahelper.Send("exit");
+                                        await networkdatahelper.Send("exit");
                                         break;
                                     }
                                     if (string.Equals("", nombresCategorias))
                                     {
                                         Console.WriteLine("No hay ninguna categoria creada aun. ");
-                                        networkdatahelper.Send("exit");
+                                        await networkdatahelper.Send("exit");
                                         break;
                                     }
                                     Console.WriteLine("Repuestos: ");
@@ -195,8 +197,8 @@ namespace ClientApp
                                     string nombreCategoriaElegida = Console.ReadLine() ?? string.Empty;
                                     string nombreRepuestoCategoria = nombreRepuestoElegido + ProtocolSpecification.fieldsSeparator +
                                         nombreCategoriaElegida;
-                                    networkdatahelper.Send(nombreRepuestoCategoria);
-                                    string asociarCateogoriaResponse = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(nombreRepuestoCategoria);
+                                    string asociarCateogoriaResponse = await networkdatahelper.Receive();
                                     Console.WriteLine(asociarCateogoriaResponse);
                                     break;
                                /* case "4":
@@ -275,14 +277,14 @@ namespace ClientApp
                                     Console.WriteLine("6 - Buscar por nombre de marca");
                                     Console.WriteLine("Ingrese el numero de la opcion deseada");
                                     string opcionListado = Console.ReadLine() ?? string.Empty;
-                                    networkdatahelper.Send(opcionListado);
+                                    await networkdatahelper.Send(opcionListado);
                                     if (opcionListado != "1")
                                     {
                                         Console.WriteLine("Escribir el nombre: ");
                                         string nombreABuscar = Console.ReadLine() ?? string.Empty;
-                                        networkdatahelper.Send(nombreABuscar);
+                                        await networkdatahelper.Send(nombreABuscar);
                                     }
-                                    string repuestosExistentes = networkdatahelper.Receive();
+                                    string repuestosExistentes = await networkdatahelper.Receive();
                                     if (string.Equals(repuestosExistentes, ""))
                                     {
                                         Console.WriteLine("No hay repuestos para mostrar. ");
@@ -359,12 +361,12 @@ namespace ClientApp
                                     //El sistema debe permitir que un mecánico envíe mensajes a otro,
                                     //y que el mecánico receptor chequee sus mensajes sin leer, así como también revisar su historial de mensajes.
 
-                                    string nombresMecanicos = networkdatahelper.Receive();
+                                    string nombresMecanicos = await networkdatahelper.Receive();
                                     List<string> listaNombresMecanicos = nombresMecanicos.Split(ProtocolSpecification.fieldsSeparator).ToList();
                                     if (listaNombresMecanicos.Count < 2)
                                     {
                                         Console.WriteLine("No hay ningun mecanico registrado aun. ");
-                                        networkdatahelper.Send("exit");
+                                        await networkdatahelper.Send("exit");
                                         break;
                                     }
                                     Console.WriteLine("Mecanicos: ");
@@ -379,8 +381,8 @@ namespace ClientApp
                                     Console.WriteLine("Ingrese mensaje a enviar: ");
                                     string textoMensaje = Console.ReadLine() ?? string.Empty;
                                     Mensaje nuevoMensaje = new Mensaje(userConnected, nombreMecanicoElegido, textoMensaje);
-                                    networkdatahelper.Send(nuevoMensaje.ToString());
-                                    string respuestaEnviarMensaje = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(nuevoMensaje.ToString());
+                                    string respuestaEnviarMensaje = await networkdatahelper.Receive();
                                     Console.WriteLine(respuestaEnviarMensaje);
                                     break;
                                 case "8":
@@ -394,11 +396,11 @@ namespace ClientApp
                                     if (!isNumberOpcionLeer || 3 <= numberOpcionLeer || numberOpcionLeer <= 0)
                                     {
                                         Console.WriteLine("La opcion ingresada no es valida");
-                                        networkdatahelper.Send("exit");
+                                        await networkdatahelper.Send("exit");
                                         break;
                                     }
-                                    networkdatahelper.Send(opcionLeer);
-                                    string mensajesAImprimir = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(opcionLeer);
+                                    string mensajesAImprimir = await networkdatahelper.Receive();
                                     if (string.Equals("", mensajesAImprimir))
                                     {
                                         Console.WriteLine(string.Equals(opcionLeer,"1") ? "No hay mensajes nuevos. " : "No hay mensajes en el historial");
@@ -441,26 +443,8 @@ namespace ClientApp
                 socketClient.Dispose();
             }*/
 
-            static void loadData()
-            {
-                Console.WriteLine("cargando data...");
-                Console.WriteLine();
-                // creo usuarios
-                string nombre = "Juan";
-                string password = "passJuan";
-                string tipo = "mecanico";
-                Usuario user = new Usuario(nombre, password, tipo);
+             
 
-                string nombre2 = "Fabio";
-                string password2 = "passFabio";
-                string tipo2 = "mecanico";
-                Usuario user2 = new Usuario(nombre2, password2, tipo2);
-
-                string nombre3 = "Federico";
-                string password3 = "passFede";
-                string tipo3 = "mecanico";
-                Usuario user3 = new Usuario(nombre3, password3, tipo3);
-            }
         }
     }
 }

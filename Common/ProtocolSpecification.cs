@@ -19,10 +19,17 @@
 
         public const int FixedBackpack = 100;
 
+
+        /*
         public static long CalculateFileParts(long fileSize)
         {
             var fileParts = fileSize / MaxPacketSize;
             return fileParts * MaxPacketSize == fileSize ? fileParts : fileParts + 1;
+        }*/
+        public static async Task<long> CalculateFileParts(long fileSize)
+        {
+            var fileParts = fileSize / MaxPacketSize;
+            return await Task.Run(() => fileParts * MaxPacketSize == fileSize ? fileParts : fileParts + 1);
         }
     }
 }

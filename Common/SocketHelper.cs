@@ -4,6 +4,53 @@ namespace Common
 {
     public class SocketHelper
     {
+        private readonly TcpClient _tcpClient;
+
+        public SocketHelper(TcpClient tcpClient)
+        {
+            _tcpClient = tcpClient;
+        }
+
+        public async Task Send(byte[] data)
+        {
+            int offset = 0;
+            int size = data.Length;
+
+            // Necesitamos pedir el stream para enviar
+            var networkStream = _tcpClient.GetStream();
+
+            await networkStream.WriteAsync(data, offset, size);
+
+        }
+
+        public async Task<byte[]> Receive(int length)
+        {
+            byte[] response = new byte[length];
+            int offset = 0;
+            var networkStream = _tcpClient.GetStream();
+
+            try
+            {
+                while (offset < length)
+                {
+
+                    int received = await networkStream.ReadAsync(response, offset, length - offset);
+
+                    offset += received;
+
+                }
+                return response;
+            }
+            catch
+            {
+                throw new Exception("Cliente desconectado");
+
+            }
+        }
+    }
+
+    /*public class SocketHelper
+    {
         private readonly Socket _socket;
 
         public SocketHelper(Socket socket)
@@ -45,5 +92,7 @@ namespace Common
 
             return data;
         }
-    }
+    }*/
+
+
 }

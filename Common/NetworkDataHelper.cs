@@ -6,7 +6,6 @@ namespace Common
     public class NetworkDataHelper
     {
 
-        //private readonly Socket _socket;
         private readonly TcpClient _tcpClient;
 
         public NetworkDataHelper(TcpClient tcpClient)
@@ -14,7 +13,7 @@ namespace Common
             _tcpClient = tcpClient;
         }
 
-        public void Send(byte[] data)
+        public async Task Send(byte[] data)
         {
             int offset = 0;
             int size = data.Length;
@@ -22,73 +21,28 @@ namespace Common
             // Necesitamos pedir el stream para enviar
             var networkStream = _tcpClient.GetStream();
 
-            networkStream.Write(data, offset, size);
+            await networkStream.WriteAsync(data, offset, size);
         }
 
-        /* public byte[] Receive(int length)
-         {
-             byte[] response = new byte[length];
-             int offset = 0;
-
-             // Necesitamos pedir el stream para recibir
-             var networkStream = _tcpClient.GetStream();
-
-             try { 
-             while (offset < length)
-             {
-
-                 int received = networkStream.Read(response, offset, length - offset);
-                 if (received != 0)
-                 {
-                     offset += received;
-                 }
-                 else
-                 {
-                     throw new SocketException();
-                 }
-
-             }
-             return response;
-
-         }
-
-         public string Receive()
-         {
-             byte[] dataLength3 = this.Receive(ProtocolSpecification.fixedLength);
-             byte[] data3 = this.Receive(BitConverter.ToInt32(dataLength3));
-             return Encoding.UTF8.GetString(data3);
-
-         }
-
-         public void Send(string data)
-         {
-             byte[] bytesData = Encoding.UTF8.GetBytes(data);  // Convierto de string a un array de bytes
-             int datalength = bytesData.Length;
-             byte[] dataLength = BitConverter.GetBytes(datalength);
-             this.Send(dataLength);
-             this.Send(bytesData);
-         }
-     }   
- }
- */
-        public string Receive()
+        public async Task <string> Receive()
         {
-            byte[] dataLength3 = this.Receive(ProtocolSpecification.fixedLength);
-            byte[] data3 = this.Receive(BitConverter.ToInt32(dataLength3));
+            byte[] dataLength3 = await this.Receive(ProtocolSpecification.fixedLength);
+            byte[] data3 = await this.Receive(BitConverter.ToInt32(dataLength3));
             return Encoding.UTF8.GetString(data3);
 
         }
 
-        public void Send(string data)
+        public async Task Send(string data)
         {
             byte[] bytesData = Encoding.UTF8.GetBytes(data);  // Convierto de string a un array de bytes
             int datalength = bytesData.Length;
             byte[] dataLength = BitConverter.GetBytes(datalength);
-            this.Send(dataLength);
-            this.Send(bytesData);
+            await this.Send(dataLength);
+            await this.Send(bytesData);
         }
 
-        public byte[] Receive(int length)
+
+        public async Task <byte[]> Receive(int length)
         {
             byte[] response = new byte[length];
             int offset = 0;
@@ -98,7 +52,7 @@ namespace Common
             {
                 while (offset < length)
                 {
-                    int received = networkStream.Read(response, offset, length - offset);
+                    int received = await networkStream.ReadAsync(response, offset, length - offset);
                     offset += received;
                 }
                 return response;
