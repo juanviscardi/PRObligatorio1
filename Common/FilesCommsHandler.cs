@@ -41,7 +41,7 @@ namespace Common
             }
         }
 
-        public async Task ReceiveFile()
+        public async Task<string> ReceiveFile()
         {
             // ---> Recibir el largo del nombre del archivo
             int fileNameSize = _conversionHandler.ConvertBytesToInt(
@@ -53,6 +53,7 @@ namespace Common
                 await _socketHelper.Receive(ProtocolSpecification.FixedFileSize));
             // ---> Recibir el archivo
             await ReceiveFileWithStreams(fileSize, fileName);
+            return fileName;
         }
 
         private async Task SendFileWithStream(long fileSize, string path)

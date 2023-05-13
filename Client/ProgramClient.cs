@@ -81,7 +81,7 @@ namespace ClientApp
                     }
                     
                 }
-                catch (Exception ex)
+                catch
                 {
                     Console.WriteLine("Perdi la conexion con el server");
                     tcpClient.Close();
@@ -201,16 +201,16 @@ namespace ClientApp
                                     string asociarCateogoriaResponse = await networkdatahelper.Receive();
                                     Console.WriteLine(asociarCateogoriaResponse);
                                     break;
-                               /* case "4":
+                               case "4":
                                     // Console.WriteLine("4 - Asociar foto a repuesto");
                                     //CRF5 Asociar foto a repuesto.
                                     //El sistema debe permitir subir una foto y asociarla a un repuesto específico.
-                                    string repuestosExistentesParaFoto = networkdatahelper.Receive();
+                                    string repuestosExistentesParaFoto = await networkdatahelper.Receive();
                                     List<string> listaRepuestosExistentesParaFoto = repuestosExistentesParaFoto.Split(ProtocolSpecification.fieldsSeparator).ToList();
                                     if (string.Equals("", repuestosExistentesParaFoto))
                                     {
                                         Console.WriteLine("No hay ningun repuesto creado aun. ");
-                                        networkdatahelper.Send("exit");
+                                        await networkdatahelper.Send("exit");
                                         break;
                                     }
 
@@ -219,11 +219,12 @@ namespace ClientApp
                                     Console.WriteLine("Por favor escribir el path del archivo a transferir");
                                     string path = Console.ReadLine() ?? string.Empty;
                                     bool cancelar = false;
-                                    while ((string.IsNullOrEmpty(path) || path.Equals("exit", StringComparison.Ordinal) || !fileHandler.FileExists(path)) && !cancelar)
+                                    bool fileExists = await fileHandler.FileExists(path);
+                                    while ((string.IsNullOrEmpty(path) || path.Equals("exit", StringComparison.Ordinal) || !fileExists) && !cancelar)
                                     {
                                         if (path.Equals("exit", StringComparison.Ordinal))
                                         {
-                                            networkdatahelper.Send("exit");
+                                            await networkdatahelper.Send("exit");
                                             cancelar = true;
                                             break;
                                         }
@@ -233,7 +234,7 @@ namespace ClientApp
                                             path = Console.ReadLine() ?? string.Empty;
                                             continue;
                                         }
-                                        if (!fileHandler.FileExists(path))
+                                        if (!fileExists)
                                         {
                                             Console.WriteLine("El path no lleva a no lleva a ningun archivo valido, por favor  escriba uno o escriba exit para salir");
                                             path = Console.ReadLine() ?? string.Empty;
@@ -252,8 +253,8 @@ namespace ClientApp
                                     }
                                     Console.WriteLine("Escribir el nombre del repuesto para asociarle la foto");
                                     string nombreRepuesto = Console.ReadLine() ?? string.Empty;
-                                    networkdatahelper.Send(nombreRepuesto);
-                                    string responseNombreRepuesto = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(nombreRepuesto);
+                                    string responseNombreRepuesto = await networkdatahelper.Receive();
                                     if (string.Equals(responseNombreRepuesto, "El repuesto no existe."))
                                     {
                                         Console.WriteLine(responseNombreRepuesto);
@@ -261,10 +262,10 @@ namespace ClientApp
                                     }
                                     // me fijo si existia el repuesto
                                     FileCommsHandler fileCommsHandler = new FileCommsHandler(tcpClient);
-                                    fileCommsHandler.SendFile(path);
-                                    string responseFotoAsociada = networkdatahelper.Receive();
+                                    await fileCommsHandler.SendFile(path);
+                                    string responseFotoAsociada = await networkdatahelper.Receive();
                                     Console.WriteLine(responseFotoAsociada);
-                                    break;*/
+                                    break;
                                 case "5":
                                     // Console.WriteLine("5 - Consultar repuestos existentes");
                                     //CRF6 Consultar repuestos existentes.
@@ -298,13 +299,13 @@ namespace ClientApp
                                         Console.WriteLine(nombreCategoriaIterado);
                                     }
                                     break;
-                                /*case "6":
+                                case "6":
 
                                     //CRF7 Consultar un repuesto específico.
                                     //El sistema deberá poder buscar un repuesto específico.
                                     //También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
 
-                                    string nombreRepuestosExistentes = networkdatahelper.Receive();
+                                    string nombreRepuestosExistentes = await networkdatahelper.Receive();
                                     List<string> listaNombreRepuestosExistentes = nombreRepuestosExistentes.Split(ProtocolSpecification.fieldsSeparator).ToList();
                                     if (string.Equals("", listaNombreRepuestosExistentes))
                                     {
@@ -324,11 +325,11 @@ namespace ClientApp
                                     if (!isNumber || listaNombreRepuestosExistentes.Count <= number || number < 0)
                                     {
                                         Console.WriteLine("La opcion ingresada no es valida");
-                                        networkdatahelper.Send("exit");
+                                        await networkdatahelper.Send("exit");
                                         break;
                                     }
-                                    networkdatahelper.Send(listaNombreRepuestosExistentes[int.Parse(opcionDetalleSeleccionada)]);
-                                    string detallesOError = networkdatahelper.Receive();
+                                    await networkdatahelper.Send(listaNombreRepuestosExistentes[int.Parse(opcionDetalleSeleccionada)]);
+                                    string detallesOError = await networkdatahelper.Receive();
                                     if (string.Equals(detallesOError, "El repuesto no existe."))
                                     {
                                         Console.WriteLine(detallesOError);
@@ -347,14 +348,14 @@ namespace ClientApp
                                     bool isNumberFoto = int.TryParse(opcionDetalleSeleccionadaFoto, out numberFoto);
                                     if (!isNumberFoto || numberFoto > 1 || numberFoto <= 0)
                                     {
-                                        networkdatahelper.Send("NO");
+                                        await networkdatahelper.Send("NO");
                                         break;
                                     }
-                                    networkdatahelper.Send("SI");
+                                    await networkdatahelper.Send("SI");
                                     FileCommsHandler fileCommsHandler2 = new FileCommsHandler(tcpClient);
-                                    string nombreArchivo = fileCommsHandler2.ReceiveFile();
+                                    string nombreArchivo = await fileCommsHandler2.ReceiveFile();
                                     Console.WriteLine("La imagen {0} fue descargada", nombreArchivo);
-                                    break;*/
+                                    break;
                                 case "7":
                                     // Console.WriteLine("7 - Enviar y recibir mensajes");
                                     //CRF8 Enviar y recibir mensajes.

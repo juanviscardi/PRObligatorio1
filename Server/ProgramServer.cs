@@ -7,12 +7,12 @@ namespace Server
     public class ProgramServer
     {
         static readonly SettingsManager settingsMng = new SettingsManager();
-        static List<Usuario> usuarios = new();
-        static List<Repuesto> repuestos = new();
-        static List<string> categorias = new();
-        static List<Mensaje> mensajes = new();
+        static List<Usuario> usuarios = new List<Usuario>();
+        static List<Repuesto> repuestos = new List<Repuesto>();
+        static List<string> categorias = new List<string>();
+        static List<Mensaje> mensajes = new List<Mensaje>();
 
-        private static readonly SemaphoreSlim _agregarUsuario= new SemaphoreSlim(0, 1);
+        private static readonly SemaphoreSlim _agregarUsuario = new SemaphoreSlim(0, 1);
         private static readonly SemaphoreSlim _agregarRepuesto = new SemaphoreSlim(0, 1);
         private static readonly SemaphoreSlim _agregarCategoria = new SemaphoreSlim(0, 1);
         private static readonly SemaphoreSlim _asociarCategoria = new SemaphoreSlim(0, 1);
@@ -45,9 +45,14 @@ namespace Server
                 // Console.WriteLine("Acepte un nuevo pedido de conexion");
 
                 var tcpClientSocket = await tcpListener.AcceptTcpClientAsync().ConfigureAwait(false);
-                await Task.Run(async () => HandleClient(tcpClientSocket).ConfigureAwait(false)); // Pedir un "hilo" del CLR prestado
+                await Task.Run(() => Task.FromResult(HandleClient(tcpClientSocket).ConfigureAwait(false))); // Pedir un "hilo" del CLR prestado
             }
 
+        }
+
+        private static List<Repuesto> GetRepuestos()
+        {
+            return repuestos;
          }
 
      private static async Task HandleClient(TcpClient tcpClientSocket)
@@ -168,15 +173,15 @@ namespace Server
                                         var repuestoProveedor = altaRepuestoRequestConTodo[1];
                                         var repuestoMarca = altaRepuestoRequestConTodo[2];
                                         Repuesto repu = new Repuesto(
-                                                           repuestos.Count().ToString(),
+                                                           GetRepuestos().Count().ToString(),
                                                            repuestoName,
                                                            repuestoProveedor,
                                                            repuestoMarca);
                                         await _agregarRepuesto.WaitAsync();
                                         
-                                            if (!repuestos.Contains(repu))
+                                            if (!GetRepuestos().Contains(repu))
                                             {
-                                                repuestos.Add(repu);
+                                            GetRepuestos().Add(repu);
                                                 await networkdatahelper.Send("exito");
                                             }
                                             else
@@ -212,7 +217,7 @@ namespace Server
                                         // Console.WriteLine("3 - Asociar Categorías a los repuestos");
                                         // envio nombre de repuestos existentes para que se listen en el cliente
                                         List<string> repuestosExistentesNamesResponse = new List<string>();
-                                        repuestos.ToList().ForEach(x => {
+                                        GetRepuestos().ToList().ForEach(x => {
                                             repuestosExistentesNamesResponse.Add(x.Name);
                                         });
                                         await networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesNamesResponse));
@@ -229,7 +234,7 @@ namespace Server
                                         string categoria4 = asociarCategoriaRequestConTodo[1];
                                         await _asociarCategoria.WaitAsync();
                                         
-                                            Repuesto repuesto4 = repuestos.Find(x => string.Equals(repuestoName4, x.Name));
+                                            var repuesto4 = GetRepuestos().Find(x => string.Equals(repuestoName4, x.Name));
                                             if (repuesto4 != null)
                                             {
                                                 if (!repuesto4.Categorias.Contains(categoria4)) // Verifica si la categoría ya está presente en el Repuesto
@@ -255,37 +260,37 @@ namespace Server
                                         _asociarCategoria.Release();
 
                                         break;
-                                    /*case "4":
+                                    case "4":
                                         //SRF5 Asociar una foto al repuesto. El sistema debe permitir subir una foto y asociarla a un repuesto específico.
                                         //CRF5. Asociar foto a repuesto. El sistema debe permitir subir una foto y asociarla a un repuesto específico.
                                         
                                         List<string> repuestosExistentesParaFotoResponse = new List<string>();
-                                        repuestos.ToList().ForEach(x => {
+                                        GetRepuestos().ToList().ForEach(x => {
                                             repuestosExistentesParaFotoResponse.Add(x.Name);
                                         });
-                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesParaFotoResponse));
-                                        string nombreRepuestoOExit = networkdatahelper.Receive();
+                                        await networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, repuestosExistentesParaFotoResponse));
+                                        string nombreRepuestoOExit = await networkdatahelper.Receive();
                                         if(string.Equals(nombreRepuestoOExit,"exit"))
                                         {
                                             break;
                                         }
-                                        Repuesto repuesto5 = repuestos.Find(x => string.Equals(nombreRepuestoOExit, x.Name));
+                                        var repuesto5 = GetRepuestos().Find(x => string.Equals(nombreRepuestoOExit, x.Name));
                                         if (repuesto5 != null)
                                         {
-                                            networkdatahelper.Send("El repuesto existe.");
+                                            await networkdatahelper.Send("El repuesto existe.");
                                         }
                                         else
                                         {
-                                            networkdatahelper.Send("El repuesto no existe.");
+                                            await networkdatahelper.Send("El repuesto no existe.");
                                             break;
                                         }
-                                        FileCommsHandler fileCommsHandler = new FileCommsHandler(tcpClient);
-                                        string nombreArchivo = fileCommsHandler.ReceiveFile();
+                                        FileCommsHandler fileCommsHandler = new FileCommsHandler(tcpClientSocket);
+                                        string nombreArchivo = await fileCommsHandler.ReceiveFile();
                                         // el archivo queda guardado en el bin
                                         repuesto5.Foto = nombreArchivo;
-                                        networkdatahelper.Send("Se asocio la foto al repuesto.");
+                                        await networkdatahelper.Send("Se asocio la foto al repuesto.");
 
-                                        break;*/
+                                        break;
                                     case "5":
                                         // SRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes,incluyendo búsquedas por palabras claves.
                                         // CRF6. Consultar repuestos existentes. El sistema deberá poder buscar repuestos existentes, incluyendo búsquedas por palabras claves.
@@ -296,7 +301,7 @@ namespace Server
                                         {
                                             case "1":
                                                 // Console.WriteLine("1 - Listar todos");
-                                                repuestos.ToList().ForEach(x =>
+                                                GetRepuestos().ToList().ForEach(x =>
                                                 {
                                                     repuestosExistentesResponse.Add(x.ToStringListar());
                                                 });
@@ -305,7 +310,7 @@ namespace Server
                                             case "2":
                                                 // Console.WriteLine("2 - Buscar por nombre repuesto");
                                                 string opcionListadoNombre = await networkdatahelper.Receive();
-                                                repuestos.ToList().ForEach(x =>
+                                                GetRepuestos().ToList().ForEach(x =>
                                                 {
                                                     if (string.Equals(x.Name, opcionListadoNombre))
                                                     {
@@ -317,7 +322,7 @@ namespace Server
                                             case "3":
                                                 // Console.WriteLine("3 - Buscar por categoria");
                                                 string opcionListadoCategoria = await networkdatahelper.Receive();
-                                                repuestos.ToList().ForEach(x =>
+                                                GetRepuestos().ToList().ForEach(x =>
                                                 {
                                                     if (x.Categorias.Contains(opcionListadoCategoria))
                                                     {
@@ -329,7 +334,7 @@ namespace Server
                                             case "4":
                                                 // Console.WriteLine("4 - Buscar por nombre archivo foto");
                                                 string opcionListadoFoto = await networkdatahelper.Receive();
-                                                repuestos.ToList().ForEach(x =>
+                                                GetRepuestos().ToList().ForEach(x =>
                                                 {
                                                     if (string.Equals(x.Foto, opcionListadoFoto))
                                                     {
@@ -341,7 +346,7 @@ namespace Server
                                             case "5":
                                                 // Console.WriteLine("5 - Buscar por nombre de proveedor");
                                                 string opcionListadoProveedor = await networkdatahelper.Receive();
-                                                repuestos.ToList().ForEach(x =>
+                                                GetRepuestos().ToList().ForEach(x =>
                                                 {
                                                     if (string.Equals(x.Proveedor, opcionListadoProveedor))
                                                     {
@@ -353,7 +358,7 @@ namespace Server
                                             case "6":
                                                 // Console.WriteLine("6 - Buscar por nombre de marca")
                                                 string opcionListadoMarca = await networkdatahelper.Receive();
-                                                repuestos.ToList().ForEach(x =>
+                                                GetRepuestos().ToList().ForEach(x =>
                                                 {
                                                     if (string.Equals(x.Marca, opcionListadoMarca))
                                                     {
@@ -364,7 +369,7 @@ namespace Server
                                                 break;
                                         }
                                         break;
-                                    /*case "6":
+                                    case "6":
                                         // SRF7. Consultar un repuesto específico. El sistema deberá poder buscar un repuesto
                                         // específico.También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
                                         
@@ -372,16 +377,16 @@ namespace Server
                                         // específico.También deberá ser capaz de descargar la imagen asociada, en caso de existir la misma.
 
                                         List<string> nombreRepuestosExistentes = new List<string>();
-                                        repuestos.ToList().ForEach(x => {
+                                        GetRepuestos().ToList().ForEach(x => {
                                             nombreRepuestosExistentes.Add(x.Name);
                                         });
-                                        networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, nombreRepuestosExistentes));
-                                        string nombreRepuestoQuieroDetalles = networkdatahelper.Receive();
+                                        await networkdatahelper.Send(string.Join(ProtocolSpecification.fieldsSeparator, nombreRepuestosExistentes));
+                                        string nombreRepuestoQuieroDetalles = await networkdatahelper.Receive();
                                         if(string.Equals(nombreRepuestoQuieroDetalles, "exit"))
                                         {
                                             break;
                                         }
-                                        Repuesto repuesto6 = repuestos.Find(x => string.Equals(nombreRepuestoQuieroDetalles, x.Name));
+                                        var repuesto6 = GetRepuestos().Find(x => string.Equals(nombreRepuestoQuieroDetalles, x.Name));
                                         if (repuesto6 != null)
                                         {
                                             bool tieneFoto = true;
@@ -390,17 +395,17 @@ namespace Server
                                                 tieneFoto = false;
                                             }
                                             string response = repuesto6.ToStringListar() + ProtocolSpecification.fieldsSeparator + tieneFoto;
-                                            networkdatahelper.Send(response);
+                                            await networkdatahelper.Send(response);
                                         }
                                         else
                                         {
-                                            networkdatahelper.Send("El repuesto no existe.");
+                                            await networkdatahelper.Send("El repuesto no existe.");
                                         }
-                                        string enviarFoto = networkdatahelper.Receive();
+                                        string enviarFoto = await networkdatahelper.Receive();
                                         if (string.Equals(enviarFoto, "NO")) break;
-                                        FileCommsHandler fileCommsHandler2 = new FileCommsHandler(socketClient);
-                                        fileCommsHandler2.SendFile(repuesto6.Foto);
-                                        break;*/
+                                        FileCommsHandler fileCommsHandler2 = new FileCommsHandler(tcpClientSocket);
+                                        await fileCommsHandler2.SendFile(repuesto6.Foto);
+                                        break;
                                     case "7":
 
                                         //SRF8. Enviar y recibir mensajes entre mecánicos. El sistema debe permitir que un mecánico
@@ -422,7 +427,7 @@ namespace Server
                                             await networkdatahelper.Send("No se puede enviar un mensaje a si mismo");
                                             break;
                                         }
-                                        Usuario usuarioDestintario = usuarios.Find(x => string.Equals(mensajeEnviado.destinatario, x.userName));
+                                        var usuarioDestintario = usuarios.Find(x => string.Equals(mensajeEnviado.destinatario, x.userName));
                                         if (usuarioDestintario == null)
                                         {
                                             await networkdatahelper.Send("El destinatario no es un mecanica valido.");
@@ -478,9 +483,9 @@ namespace Server
                             }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine("ERROR:" + "Cliente desconectado de manera forzada \n" + tcpClientSocket.Client.LocalEndPoint.ToString() + "\n");
+                    Console.WriteLine("ERROR: Cliente desconectado de manera forzada \n" + tcpClientSocket.Client.LocalEndPoint.ToString() + "\n");
                     clientIsConnected = false;
                 }
 
