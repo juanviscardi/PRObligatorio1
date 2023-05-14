@@ -65,7 +65,7 @@ namespace Server
 
             while (clientIsConnected)
             {
-                string[] ipAddressPuerto = tcpClientSocket.Client.LocalEndPoint.ToString().Split(":");
+                string[] ipAddressPuerto = tcpClientSocket.Client.RemoteEndPoint.ToString().Split(":");
                 Console.WriteLine("Tratando de Conectar desde IP: {0} usando el puerto: {1}",ipAddressPuerto[0],ipAddressPuerto[1]);
 
                 try
@@ -83,7 +83,10 @@ namespace Server
                         {
                             usernameConnected = usuario;
                             userType = "admin";
+
+                            Console.WriteLine();
                             Console.WriteLine("Usuario: {0} hizo login como Administrador", usuario);
+                            Console.WriteLine();
                             await networkdatahelper.Send("admin");
                         }
                         else
@@ -108,7 +111,7 @@ namespace Server
                                 await networkdatahelper.Send("error");
                             }
                         }
-                        continue;
+                        break;
                     }
                     string cmd = await networkdatahelper.Receive();
                     switch (userType)
@@ -485,13 +488,13 @@ namespace Server
                 }
                 catch
                 {
-                    Console.WriteLine("ERROR: Cliente desconectado de manera forzada \n" + tcpClientSocket.Client.LocalEndPoint.ToString() + "\n");
+                    Console.WriteLine("ERROR: Cliente desconectado de manera forzada \n" + tcpClientSocket.Client.RemoteEndPoint.ToString() + "\n");
                     clientIsConnected = false;
                 }
 
             }
-            tcpClientSocket.Close();
-            Console.WriteLine("Cliente desconectado");
+            tcpClientSocket.Client.Close();
+            Console.WriteLine("Cliente desconectado.");
 
         }
     }
