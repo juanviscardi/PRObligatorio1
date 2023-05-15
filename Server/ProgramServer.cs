@@ -12,10 +12,10 @@ namespace Server
         static List<string> categorias = new List<string>();
         static List<Mensaje> mensajes = new List<Mensaje>();
 
-        private static readonly SemaphoreSlim _agregarUsuario = new SemaphoreSlim(0, 1);
-        private static readonly SemaphoreSlim _agregarRepuesto = new SemaphoreSlim(0, 1);
-        private static readonly SemaphoreSlim _agregarCategoria = new SemaphoreSlim(0, 1);
-        private static readonly SemaphoreSlim _asociarCategoria = new SemaphoreSlim(0, 1);
+        private static readonly SemaphoreSlim _agregarUsuario = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+        private static readonly SemaphoreSlim _agregarRepuesto = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+        private static readonly SemaphoreSlim _agregarCategoria = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+        private static readonly SemaphoreSlim _asociarCategoria = new SemaphoreSlim(initialCount: 1, maxCount: 1);
 
         static async Task Main(string[] args)
         {
@@ -62,12 +62,11 @@ namespace Server
             string userType = "error";
             string usernameConnected = "";
             NetworkDataHelper networkdatahelper = new NetworkDataHelper(tcpClientSocket);
+            string[] ipAddressPuerto = tcpClientSocket.Client.RemoteEndPoint.ToString().Split(":");
+            Console.WriteLine("Tratando de Conectar desde IP: {0} usando el puerto: {1}", ipAddressPuerto[0], ipAddressPuerto[1]);
 
             while (clientIsConnected)
             {
-                string[] ipAddressPuerto = tcpClientSocket.Client.RemoteEndPoint.ToString().Split(":");
-                Console.WriteLine("Tratando de Conectar desde IP: {0} usando el puerto: {1}",ipAddressPuerto[0],ipAddressPuerto[1]);
-
                 try
                 {
                     if (string.Equals(userType, "error"))
@@ -111,7 +110,7 @@ namespace Server
                                 await networkdatahelper.Send("error");
                             }
                         }
-                        break;
+                        continue;
                     }
                     string cmd = await networkdatahelper.Receive();
                     switch (userType)
